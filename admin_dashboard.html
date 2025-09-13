@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Pendaftaran Diklat Tilawati</title>
+    <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CSS failed to load from CDN')"></script>
+    <script>
+        // Fallback for Tailwind CSS if CDN fails
+        if (typeof tailwind === 'undefined') {
+            console.log('Tailwind CSS not loaded, using basic styling...');
+            // Add basic CSS fallback
+            const style = document.createElement('style');
+            style.textContent = `
+                .hidden { display: none !important; }
+                .flex { display: flex; }
+                .grid { display: grid; }
+                .text-center { text-align: center; }
+                .font-bold { font-weight: bold; }
+                .bg-blue-500 { background-color: #3b82f6; }
+                .text-white { color: white; }
+                .px-4 { padding-left: 1rem; padding-right: 1rem; }
+                .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+                .rounded-lg { border-radius: 0.5rem; }
+                .hover\\:bg-blue-600:hover { background-color: #2563eb; }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="console.warn('Chart.js failed to load from jsdelivr, trying alternative CDN')"></script>
+    <script>
+        // Fallback for Chart.js if jsdelivr fails
+        if (typeof Chart === 'undefined') {
+            console.log('Loading Chart.js from alternative CDN...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js';
+            script.onerror = function() {
+                console.error('Failed to load Chart.js from all CDNs');
+                alert('Gagal memuat Chart.js. Silakan refresh halaman atau coba lagi nanti.');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-hover tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table-hover tbody tr:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+            transform: scale(1.01);
+        }
+        
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(59, 130, 246, 0.1);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .glass-card {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+                min-height: 100px;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            .chart-container h3 {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .chart-container .h-64 {
+                height: 12rem;
+            }
+            
+            .chart-container .h-72 {
+                height: 12rem;
+            }
+            
+            .header-glass {
+                padding: 1rem 0;
+            }
+            
+            .table-container {
+                border-radius: 15px;
+                margin: 0.5rem;
+            }
+            
+            .modal-content {
+                margin: 1rem;
+                max-height: calc(100vh - 2rem);
+                border-radius: 15px;
+            }
+            
+            body {
+                overflow-y: auto !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .stat-card {
+                padding: 0.75rem;
+                min-height: 90px;
+            }
+            
+            .stat-card .text-2xl {
+                font-size: 1.25rem;
+            }
+            
+            .stat-card .text-sm {
+                font-size: 0.7rem;
+            }
+            
+            .stat-card .text-xs {
+                font-size: 0.65rem;
+            }
+            
+            .stat-card .font-medium {
+                font-size: 0.7rem;
+            }
+            
+            .stat-card .font-bold {
+                font-size: 1.25rem;
+            }
+            
+            .chart-container {
+                padding: 0.75rem;
+                border-radius: 12px;
+            }
+            
+            .chart-container h3 {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .chart-container .h-64 {
+                height: 10rem;
+            }
+            
+            .chart-container .h-72 {
+                height: 10rem;
+            }
+            
+            .chart-container .w-5 {
+                width: 1rem;
+            }
+            
+            .chart-container .h-5 {
+                height: 1rem;
+            }
+            
+            .table-container {
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 0.5rem;
+                min-height: 80px;
+            }
+            
+            .stat-card .text-2xl {
+                font-size: 1.1rem;
+            }
+            
+            .stat-card .text-sm {
+                font-size: 0.65rem;
+            }
+            
+            .stat-card .text-xs {
+                font-size: 0.6rem;
+            }
+            
+            .stat-card .font-medium {
+                font-size: 0.65rem;
+            }
+            
+            .stat-card .font-bold {
+                font-size: 1.1rem;
+            }
+            
+            .stat-card .ml-4 {
+                margin-left: 0.75rem;
+            }
+            
+            .stat-card .p-3 {
+                padding: 0.5rem;
+            }
+            
+            .stat-card .w-6 {
+                width: 1.25rem;
+            }
+            
+            .stat-card .h-6 {
+                height: 1.25rem;
+            }
+            
+            .chart-container {
+                padding: 0.5rem;
+                border-radius: 10px;
+            }
+            
+            .chart-container h3 {
+                font-size: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .chart-container .h-64 {
+                height: 8rem;
+            }
+            
+            .chart-container .h-72 {
+                height: 8rem;
+            }
+            
+            .chart-container .w-5 {
+                width: 0.875rem;
+            }
+            
+            .chart-container .h-5 {
+                height: 0.875rem;
+            }
+            
+            .chart-container .mr-2 {
+                margin-right: 0.375rem;
+            }
+        }
+        
+        /* Enhanced Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        /* Chart Container Enhancements */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+        <!-- Header -->
+    <div class="header-glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-6 gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="logo.jpg" alt="Logo 1" class="w-12 h-12 object-contain floating-animation">
+                        <img src="logo2.jpg" alt="Logo 2" class="w-12 h-12 object-contain floating-animation" style="animation-delay: 0.5s;">
+                    </div>
+                <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Dashboard Admin
+                        </h1>
+                        <p class="text-sm text-gray-600">Pendaftaran Diklat Tilawati Level 1</p>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
+            <!-- Total Pendaftar -->
+            <div class="stat-card">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Pendaftar</p>
+                        <p class="text-2xl font-bold text-gray-900" id="statTotalPendaftar">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Laki-laki -->
+            <div class="stat-card">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Laki-laki</p>
+                        <p class="text-2xl font-bold text-blue-600" id="statLakiLaki">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perempuan -->
+            <div class="stat-card">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-gradient-to-r from-pink-500 to-pink-600 shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Perempuan</p>
+                        <p class="text-2xl font-bold text-pink-600" id="statPerempuan">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rata-rata Usia -->
+            <div class="stat-card">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Rata-rata Usia</p>
+                        <p class="text-2xl font-bold text-green-600" id="statRataUsia">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
+            <!-- Gender Chart -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Distribusi Jenis Kelamin
+                </h3>
+                <div class="h-64 sm:h-72 flex items-center justify-center">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Age Chart -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Distribusi Usia
+                </h3>
+                <div class="h-64 sm:h-72 flex items-center justify-center">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <div class="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Data Pendaftar
+                    </h3>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">Cari:</label>
+                            <input type="text" id="searchInput" placeholder="Nama, alamat, utusan..." 
+                                   class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">Per halaman:</label>
+                            <select id="pageSizeSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                    </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden p-8 text-center">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-600">Memuat data...</p>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                            <th class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempat & Tgl Lahir</th>
+                            <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
+                            <th class="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utusan</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="bg-white divide-y divide-gray-200 table-hover">
+                        <!-- Data akan dimuat di sini -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-4 sm:px-6 py-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div class="text-sm text-gray-700 mb-4 sm:mb-0 text-center sm:text-left">
+                        Menampilkan <span id="showingFrom" class="font-semibold">0</span> sampai <span id="showingTo" class="font-semibold">0</span> 
+                        dari <span id="totalRecords" class="font-semibold">0</span> pendaftar
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <button id="prevPage" onclick="changePage(-1)" 
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            Sebelumnya
+                        </button>
+                        <div id="pageNumbers" class="flex space-x-1">
+                            <!-- Page numbers akan dimuat di sini -->
+                        </div>
+                        <button id="nextPage" onclick="changePage(1)" 
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            Selanjutnya
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-md w-full fade-in">
+                <div class="px-6 py-6">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Akses Terbatas</h3>
+                        <p class="text-gray-600">Masukkan password untuk melihat detail pendaftar</p>
+                    </div>
+                    
+                    <form id="passwordForm" class="space-y-4">
+                        <div>
+                            <label for="passwordInput" class="block text-sm font-medium text-gray-700 mb-2">
+                                Password
+                            </label>
+                            <input type="password" id="passwordInput" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Masukkan password"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <div id="passwordError" class="hidden text-red-600 text-sm text-center">
+                            Password salah! Silakan coba lagi.
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button type="button" onclick="closePasswordModal()" 
+                                    class="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                Batal
+                            </button>
+                            <button type="submit" 
+                                    class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Masuk
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 z-70 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-4xl w-full max-h-[90vh] overflow-y-auto fade-in">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Data Pendaftar
+                    </h3>
+                    <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 sm:p-6" id="editModalContent">
+                    <!-- Edit form akan dimuat di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-80 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-md w-full fade-in">
+                <div class="px-6 py-6">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Konfirmasi Hapus</h3>
+                        <p class="text-gray-600">Apakah Anda yakin ingin menghapus data pendaftar ini?</p>
+                        <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data termasuk foto yang diupload.</p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="closeDeleteModal()" 
+                                class="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            Batal
+                        </button>
+                        <button onclick="confirmDelete()" 
+                                class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-60 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-4xl w-full max-h-[90vh] overflow-y-auto fade-in">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        Detail Pendaftar
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <button id="editBtn" onclick="editData()" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors" title="Edit Data">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button id="deleteBtn" onclick="deleteData()" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" title="Hapus Data">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors" title="Tutup">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6" id="modalContent">
+                    <!-- Content akan dimuat di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="console.warn('Supabase failed to load from jsdelivr')"></script>
+    <script>
+        // Global Supabase configuration - MUST be at the top
+        const supabaseUrl = 'https://iwnwqcxigtywetgcmlou.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bndxY3hpZ3R5d2V0Z2NtbG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MjQ4MTUsImV4cCI6MjA1MTQwMDgxNX0.fjdJlTVav4Gm8ku9rBmRuLoae5ViFxas7Uu069ItfnY'
+        
+        // Check if Supabase loaded successfully
+        if (typeof window.supabase === 'undefined') {
+            console.log('Loading Supabase from alternative CDN...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+            script.onerror = function() {
+                console.error('Failed to load Supabase from all CDNs');
+                alert('Gagal memuat Supabase. Silakan refresh halaman atau coba lagi nanti.');
+            };
+            script.onload = function() {
+                initializeSupabase();
+            };
+            document.head.appendChild(script);
+        } else {
+            initializeSupabase();
+        }
+        
+        function initializeSupabase() {
+            try {
+                // Inisialisasi Supabase client
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+                window.supabaseClient = supabase; // Store globally
+                console.log('Supabase initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+                alert('Gagal menginisialisasi koneksi database. Silakan refresh halaman.');
+            }
+        }
+
+        // Global variables
+        let allData = []
+        let filteredData = []
+        let currentPage = 1
+        let pageSize = 20
+        let totalPages = 0
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard admin dimuat...')
+            console.log('Supabase URL:', supabaseUrl)
+            console.log('Supabase Key tersedia:', !!supabaseKey)
+            
+            // Test koneksi Supabase
+            testSupabaseConnection()
+            
+            loadData()
+            setupEventListeners()
+            
+            // Add debug button
+            setTimeout(addDebugButton, 1000)
+        })
+
+        // Test Supabase connection
+        async function testSupabaseConnection() {
+            try {
+                if (!window.supabaseClient) {
+                    console.error('Supabase client not initialized');
+                    alert('Koneksi database belum siap. Silakan refresh halaman.');
+                    return;
+                }
+                
+                console.log('Testing koneksi Supabase...')
+                const { data, error } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .select('count', { count: 'exact', head: true })
+                
+                if (error) {
+                    console.error('Error koneksi Supabase:', error)
+                    alert('Error koneksi ke database: ' + error.message)
+                } else {
+                    console.log('Koneksi Supabase berhasil. Total records:', data)
+                }
+            } catch (err) {
+                console.error('Error testing koneksi:', err)
+                alert('Gagal terhubung ke database: ' + err.message)
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterData()
+            })
+            
+            document.getElementById('pageSizeSelect').addEventListener('change', function() {
+                pageSize = parseInt(this.value)
+                currentPage = 1
+                filterData()
+            })
+            
+            // Password form event listener
+            document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                e.preventDefault()
+                handlePasswordSubmit()
+            })
+            
+            // Enter key on password input
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handlePasswordSubmit()
+                }
+            })
+        }
+
+        // Load data from Supabase
+        async function loadData() {
+            showLoading(true)
+            
+            try {
+                if (!window.supabaseClient) {
+                    console.error('Supabase client not initialized');
+                    alert('Koneksi database belum siap. Silakan refresh halaman.');
+                    showLoading(false);
+                    return;
+                }
+                
+                console.log('Memulai pengambilan data dari Supabase...')
+                
+                // Ambil data pendaftaran dengan kolom foto_url dan pas_url
+                const { data: pendaftaranData, error: pendaftaranError } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+
+                if (pendaftaranError) {
+                    console.error('Error mengambil data pendaftaran:', pendaftaranError)
+                    throw new Error('Gagal memuat data pendaftaran: ' + pendaftaranError.message)
+                }
+
+                console.log('Data pendaftaran berhasil diambil:', pendaftaranData?.length || 0, 'records')
+
+                // Tidak perlu mengambil data file_uploads lagi karena menggunakan kolom foto_url dan pas_url
+
+                // Simpan data pendaftaran langsung (tidak perlu gabung dengan file_uploads)
+                allData = pendaftaranData || []
+                
+                filteredData = [...allData]
+                
+                console.log('Total data yang akan ditampilkan:', allData.length)
+                
+                updateStatistics()
+                updateCharts()
+                renderTable()
+                
+            } catch (error) {
+                console.error('Error loading data:', error)
+                alert('Terjadi kesalahan saat memuat data: ' + error.message)
+            } finally {
+                showLoading(false)
+            }
+        }
+
+        // Show/hide loading state
+        function showLoading(show) {
+            const loadingState = document.getElementById('loadingState')
+            const tableBody = document.getElementById('tableBody')
+            
+            if (show) {
+                loadingState.classList.remove('hidden')
+                tableBody.innerHTML = ''
+            } else {
+                loadingState.classList.add('hidden')
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = allData.length
+            const lakiLaki = allData.filter(item => item.jenis_kelamin === 'laki-laki').length
+            const perempuan = allData.filter(item => item.jenis_kelamin === 'perempuan').length
+            
+            // Calculate average age
+            const today = new Date()
+            const totalAge = allData.reduce((sum, item) => {
+                if (item.tanggal_lahir) {
+                    const birthDate = new Date(item.tanggal_lahir)
+                    const age = today.getFullYear() - birthDate.getFullYear()
+                    return sum + age
+                }
+                return sum
+            }, 0)
+            const avgAge = total > 0 ? Math.round(totalAge / total) : 0
+
+            document.getElementById('statTotalPendaftar').textContent = total
+            document.getElementById('statLakiLaki').textContent = lakiLaki
+            document.getElementById('statPerempuan').textContent = perempuan
+            document.getElementById('statRataUsia').textContent = avgAge + ' tahun'
+        }
+
+        // Update charts
+        function updateCharts() {
+            updateGenderChart()
+            updateAgeChart()
+        }
+
+        // Global chart instances
+        let genderChart = null
+        let ageChart = null
+
+        // Update gender chart
+        function updateGenderChart() {
+            const ctx = document.getElementById('genderChart').getContext('2d')
+            
+            // Destroy existing chart if it exists
+            if (genderChart) {
+                genderChart.destroy()
+            }
+            
+            const lakiLaki = allData.filter(item => item.jenis_kelamin === 'laki-laki').length
+            const perempuan = allData.filter(item => item.jenis_kelamin === 'perempuan').length
+
+            // Get screen width for responsive configuration
+            const screenWidth = window.innerWidth
+            
+            genderChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Laki-laki', 'Perempuan'],
+                    datasets: [{
+                        data: [lakiLaki, perempuan],
+                        backgroundColor: ['#3B82F6', '#EC4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: screenWidth <= 640 ? 8 : 12,
+                                font: {
+                                    size: screenWidth <= 640 ? 10 : 12
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || ''
+                                    const value = context.parsed || 0
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0)
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0
+                                    return `${label}: ${value} (${percentage}%)`
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: screenWidth <= 640 ? 1 : 2
+                        }
+                    }
+                }
+            })
+        }
+
+        // Update age chart
+        function updateAgeChart() {
+            const ctx = document.getElementById('ageChart').getContext('2d')
+            
+            // Destroy existing chart if it exists
+            if (ageChart) {
+                ageChart.destroy()
+            }
+            
+            const today = new Date()
+            const ageGroups = {
+                '18-25': 0,
+                '26-35': 0,
+                '36-45': 0,
+                '46-55': 0,
+                '56+': 0
+            }
+
+            allData.forEach(item => {
+                if (item.tanggal_lahir) {
+                    const birthDate = new Date(item.tanggal_lahir)
+                    const age = today.getFullYear() - birthDate.getFullYear()
+                    
+                    if (age >= 18 && age <= 25) ageGroups['18-25']++
+                    else if (age >= 26 && age <= 35) ageGroups['26-35']++
+                    else if (age >= 36 && age <= 45) ageGroups['36-45']++
+                    else if (age >= 46 && age <= 55) ageGroups['46-55']++
+                    else if (age > 55) ageGroups['56+']++
+                }
+            })
+
+            // Get screen width for responsive configuration
+            const screenWidth = window.innerWidth
+            
+            ageChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(ageGroups),
+                    datasets: [{
+                        data: Object.values(ageGroups),
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: screenWidth <= 640 ? 'bottom' : 'bottom',
+                            labels: {
+                                padding: screenWidth <= 640 ? 8 : 12,
+                                font: {
+                                    size: screenWidth <= 640 ? 10 : 12
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || ''
+                                    const value = context.parsed || 0
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0)
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0
+                                    return `${label}: ${value} (${percentage}%)`
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: screenWidth <= 640 ? 1 : 2
+                        }
+                    }
+                }
+            })
+        }
+
+        // Filter data based on search
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase()
+            
+            filteredData = allData.filter(item => {
+                const nama = item.nama_lengkap?.toLowerCase() || ''
+                const alamat = item.alamat_jalan?.toLowerCase() || ''
+                const utusan = item.utusan?.toLowerCase() || ''
+                
+                return nama.includes(searchTerm) || 
+                       alamat.includes(searchTerm) || 
+                       utusan.includes(searchTerm)
+            })
+            
+            currentPage = 1
+            renderTable()
+        }
+
+        // Render table
+        function renderTable() {
+            totalPages = Math.ceil(filteredData.length / pageSize)
+            const startIndex = (currentPage - 1) * pageSize
+            const endIndex = Math.min(startIndex + pageSize, filteredData.length)
+            const pageData = filteredData.slice(startIndex, endIndex)
+
+            const tableBody = document.getElementById('tableBody')
+            tableBody.innerHTML = ''
+
+            if (pageData.length === 0) {
+                const row = document.createElement('tr')
+                row.innerHTML = `
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">Tidak ada data pendaftar</p>
+                            <p class="text-sm">Belum ada pendaftar yang terdaftar atau data sedang dimuat</p>
+                        </div>
+                        </td>
+                `
+                tableBody.appendChild(row)
+                return
+            }
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr')
+                row.className = 'hover:bg-gray-50'
+                
+                const birthDate = item.tanggal_lahir ? new Date(item.tanggal_lahir).toLocaleDateString('id-ID') : '-'
+                const age = item.tanggal_lahir ? calculateAge(item.tanggal_lahir) : '-'
+                
+                row.innerHTML = `
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.nama_lengkap || '-'}</div>
+                        <div class="text-xs sm:text-sm text-gray-500">${item.jenis_kelamin || '-'} • ${age} tahun</div>
+                        <div class="sm:hidden text-xs text-gray-500 mt-1">
+                            <div>${item.tempat_lahir || '-'}</div>
+                            <div>${item.utusan || '-'}</div>
+                        </div>
+                    </td>
+                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.tempat_lahir || '-'}</div>
+                        <div class="text-sm text-gray-500">${birthDate}</div>
+                    </td>
+                    <td class="hidden md:table-cell px-6 py-4">
+                        <div class="text-sm text-gray-900 max-w-xs truncate">${item.alamat_jalan || '-'}</div>
+                        <div class="text-sm text-gray-500">${item.desa_kelurahan || '-'}, ${item.kecamatan || '-'}</div>
+                    </td>
+                    <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.utusan || '-'}</td>
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="detail-btn text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors" 
+                                data-id="${item.id}">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            </button>
+                    </td>
+                `
+                tableBody.appendChild(row)
+            })
+
+            // Add event listeners to detail buttons
+            const detailButtons = tableBody.querySelectorAll('.detail-btn')
+            detailButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id')
+                    showDetail(id)
+                })
+            })
+
+            updatePagination()
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const startIndex = (currentPage - 1) * pageSize + 1
+            const endIndex = Math.min(currentPage * pageSize, filteredData.length)
+            
+            document.getElementById('showingFrom').textContent = filteredData.length > 0 ? startIndex : 0
+            document.getElementById('showingTo').textContent = endIndex
+            document.getElementById('totalRecords').textContent = filteredData.length
+
+            // Update pagination buttons
+            document.getElementById('prevPage').disabled = currentPage === 1
+            document.getElementById('nextPage').disabled = currentPage === totalPages
+
+            // Update page numbers
+            const pageNumbers = document.getElementById('pageNumbers')
+            pageNumbers.innerHTML = ''
+
+            const maxVisiblePages = 5
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1)
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button')
+                pageBtn.textContent = i
+                pageBtn.className = `px-3 py-2 text-sm font-medium rounded-md ${
+                    i === currentPage 
+                        ? 'bg-blue-500 text-white' 
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                }`
+                pageBtn.onclick = () => goToPage(i)
+                pageNumbers.appendChild(pageBtn)
+            }
+        }
+
+        // Change page
+        function changePage(direction) {
+            const newPage = currentPage + direction
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage
+                renderTable()
+            }
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page
+                renderTable()
+            }
+        }
+
+        // Calculate age
+        function calculateAge(birthDate) {
+            const today = new Date()
+            const birth = new Date(birthDate)
+            let age = today.getFullYear() - birth.getFullYear()
+            const monthDiff = today.getMonth() - birth.getMonth()
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--
+            }
+            
+            return age
+        }
+
+        // Global variables
+        let pendingDetailId = null
+        let currentEditingData = null
+        let currentDeletingData = null
+
+        // Show detail modal (now shows password modal first)
+        async function showDetail(id) {
+            console.log('showDetail called with id:', id, 'type:', typeof id)
+            
+            // Convert id to string for comparison
+            const searchId = String(id)
+            const item = allData.find(d => String(d.id) === searchId)
+            
+            if (!item) {
+                console.error('Item not found with id:', id)
+                console.log('Available IDs:', allData.map(d => d.id))
+                alert('Data tidak ditemukan dengan ID: ' + id)
+                return
+            }
+            
+            console.log('Found item:', item)
+            
+            // Store the ID and show password modal
+            pendingDetailId = id
+            showPasswordModal()
+        }
+
+        // Show password modal
+        function showPasswordModal() {
+            document.getElementById('passwordModal').classList.remove('hidden')
+            document.getElementById('passwordInput').focus()
+            document.getElementById('passwordError').classList.add('hidden')
+            document.getElementById('passwordInput').value = ''
+        }
+
+        // Close password modal
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden')
+            pendingDetailId = null
+        }
+
+        // Handle password form submission
+        function handlePasswordSubmit() {
+            console.log('handlePasswordSubmit called')
+            const passwordInput = document.getElementById('passwordInput')
+            const passwordError = document.getElementById('passwordError')
+            const enteredPassword = passwordInput.value.trim()
+            
+            console.log('Entered password:', enteredPassword)
+            console.log('Pending detail ID:', pendingDetailId)
+            
+            // Check if password is correct
+            if (enteredPassword === '123') {
+                console.log('Password correct, proceeding...')
+                
+                // Store the ID before closing modal
+                const detailId = pendingDetailId
+                
+                // Hide password modal
+                closePasswordModal()
+                
+                // Show actual detail modal
+                if (detailId) {
+                    console.log('Calling showActualDetail with ID:', detailId)
+                    showActualDetail(detailId)
+                } else {
+                    console.error('No pending detail ID found!')
+                }
+            } else {
+                // Show error message
+                passwordError.classList.remove('hidden')
+                passwordInput.value = ''
+                passwordInput.focus()
+                
+                // Hide error after 3 seconds
+                setTimeout(() => {
+                    passwordError.classList.add('hidden')
+                }, 3000)
+            }
+        }
+
+        // Show actual detail modal (called after password verification)
+        async function showActualDetail(id) {
+            console.log('showActualDetail called with id:', id)
+            
+            // Convert id to string for comparison
+            const searchId = String(id)
+            const item = allData.find(d => String(d.id) === searchId)
+            
+            if (!item) {
+                console.error('Item not found with id:', id)
+                alert('Data tidak ditemukan dengan ID: ' + id)
+                return
+            }
+            
+            console.log('Found item:', item)
+            
+            // Store current data for edit/delete operations
+            currentEditingData = item
+            currentDeletingData = item
+
+            // Show modal with loading state
+            console.log('Showing detail modal...')
+            const detailModal = document.getElementById('detailModal')
+            console.log('Detail modal element:', detailModal)
+            detailModal.classList.remove('hidden')
+            console.log('Detail modal classes after removing hidden:', detailModal.className)
+            const modalContent = document.getElementById('modalContent')
+            modalContent.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="loading-spinner mr-3"></div>
+                    <span class="text-gray-600">Memuat detail pendaftar...</span>
+                </div>
+            `
+
+            try {
+                // Get photo URLs directly from pendaftaran_diklat table
+                console.log('Using photo URLs from pendaftaran_diklat table for id:', id)
+                
+                const ktpUrl = item.foto_url
+                const pasPhotoUrl = item.pas_url
+                
+                console.log('KTP URL:', ktpUrl)
+                console.log('Pas Photo URL:', pasPhotoUrl)
+
+                // Render modal content
+                modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Personal Information -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Informasi Pribadi</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Nama Lengkap</label>
+                                <p class="text-gray-900">${item.nama_lengkap || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Jenis Kelamin</label>
+                                <p class="text-gray-900">${item.jenis_kelamin || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Tempat Lahir</label>
+                                <p class="text-gray-900">${item.tempat_lahir || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Tanggal Lahir</label>
+                                <p class="text-gray-900">${item.tanggal_lahir ? new Date(item.tanggal_lahir).toLocaleDateString('id-ID') : '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Kontak WA</label>
+                                <p class="text-gray-900">${item.kontak_wa || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Utusan</label>
+                                <p class="text-gray-900">${item.utusan || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Alamat</h4>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Jalan</label>
+                                <p class="text-gray-900">${item.alamat_jalan || '-'}</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600">Desa/Kelurahan</label>
+                                    <p class="text-gray-900">${item.desa_kelurahan || '-'}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600">Kecamatan</label>
+                                    <p class="text-gray-900">${item.kecamatan || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Dokumen</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- KTP -->
+                            <div>
+                                <h5 class="font-medium text-gray-700 mb-2">Foto KTP</h5>
+                                ${ktpUrl ? `
+                                    <div class="border rounded-lg p-4 bg-white">
+                                        <div class="relative">
+                                            <img src="${ktpUrl}" alt="Foto KTP" 
+                                                 class="w-full h-48 object-cover rounded-lg mb-2 border"
+                                                 onerror="this.parentElement.innerHTML='<div class=\'w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500\'>Gagal memuat gambar</div>'">
+                                            <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                                KTP
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">Foto KTP</p>
+                        <div class="flex space-x-2">
+                                            <a href="${ktpUrl}" target="_blank" 
+                                               class="text-blue-600 hover:text-blue-800 text-sm bg-blue-50 px-3 py-1 rounded">
+                                                📷 Lihat Full Size
+                                            </a>
+                                            <button onclick="downloadFile('${ktpUrl}', 'ktp.jpg')" 
+                                                    class="text-green-600 hover:text-green-800 text-sm bg-green-50 px-3 py-1 rounded">
+                                                💾 Download
+                            </button>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-white">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 text-sm">Foto KTP tidak tersedia</p>
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- Pas Photo -->
+                            <div>
+                                <h5 class="font-medium text-gray-700 mb-2">Pas Photo</h5>
+                                ${pasPhotoUrl ? `
+                                    <div class="border rounded-lg p-4 bg-white">
+                                        <div class="relative">
+                                            <img src="${pasPhotoUrl}" alt="Pas Photo" 
+                                                 class="w-full h-48 object-cover rounded-lg mb-2 border"
+                                                 onerror="this.parentElement.innerHTML='<div class=\'w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500\'>Gagal memuat gambar</div>'">
+                                            <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                                PAS
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">Pas Photo</p>
+                                        <div class="flex space-x-2">
+                                            <a href="${pasPhotoUrl}" target="_blank" 
+                                               class="text-blue-600 hover:text-blue-800 text-sm bg-blue-50 px-3 py-1 rounded">
+                                                📷 Lihat Full Size
+                                            </a>
+                                            <button onclick="downloadFile('${pasPhotoUrl}', 'pas_photo.jpg')" 
+                                                    class="text-green-600 hover:text-green-800 text-sm bg-green-50 px-3 py-1 rounded">
+                                                💾 Download
+                            </button>
+                        </div>
+                                    </div>
+                                ` : `
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-white">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 text-sm">Pas Photo tidak tersedia</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Informasi Tambahan</h4>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Tanggal Pendaftaran</label>
+                                <p class="text-gray-900">${item.created_at ? new Date(item.created_at).toLocaleString('id-ID') : '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600">Kritik dan Saran</label>
+                                <p class="text-gray-900">${item.kritik_saran || 'Tidak ada'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+
+            } catch (error) {
+                console.error('Error loading detail:', error)
+                modalContent.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-red-500 mb-4">
+                            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Terjadi Kesalahan</h3>
+                        <p class="text-gray-600 mb-4">Gagal memuat detail pendaftar</p>
+                        <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Tutup
+                        </button>
+                    </div>
+                `
+            }
+        }
+
+        // Download file function
+        function downloadFile(url, filename) {
+            try {
+                const link = document.createElement('a')
+                link.href = url
+                link.download = filename
+                link.target = '_blank'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+            } catch (error) {
+                console.error('Error downloading file:', error)
+                alert('Gagal mengunduh file')
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden')
+        }
+
+        // Edit data function
+        function editData() {
+            if (!currentEditingData) {
+                console.error('No data to edit')
+                alert('Tidak ada data untuk diedit')
+                return
+            }
+            
+            console.log('Editing data:', currentEditingData)
+            showEditModal(currentEditingData)
+        }
+
+        // Show edit modal
+        function showEditModal(data) {
+            currentEditingData = data
+            document.getElementById('editModal').classList.remove('hidden')
+            
+            const editContent = document.getElementById('editModalContent')
+            editContent.innerHTML = `
+                <form id="editForm" class="space-y-6">
+                    <!-- Personal Information -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Informasi Pribadi</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                                <input type="text" id="editNamaLengkap" value="${data.nama_lengkap || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin *</label>
+                                <select id="editJenisKelamin" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                    <option value="laki-laki" ${data.jenis_kelamin === 'laki-laki' ? 'selected' : ''}>Laki-laki</option>
+                                    <option value="perempuan" ${data.jenis_kelamin === 'perempuan' ? 'selected' : ''}>Perempuan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir *</label>
+                                <input type="text" id="editTempatLahir" value="${data.tempat_lahir || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir *</label>
+                                <input type="date" id="editTanggalLahir" value="${data.tanggal_lahir || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kontak WA *</label>
+                                <input type="tel" id="editKontakWa" value="${data.kontak_wa || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Utusan *</label>
+                                <input type="text" id="editUtusan" value="${data.utusan || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Alamat</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jalan *</label>
+                                <input type="text" id="editAlamatJalan" value="${data.alamat_jalan || ''}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Desa/Kelurahan *</label>
+                                    <input type="text" id="editDesaKelurahan" value="${data.desa_kelurahan || ''}" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kecamatan *</label>
+                                    <input type="text" id="editKecamatan" value="${data.kecamatan || ''}" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kritik dan Saran -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Kritik dan Saran</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kritik dan Saran</label>
+                            <textarea id="editKritikSaran" rows="3" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">${data.kritik_saran || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="closeEditModal()" 
+                                class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            `
+            
+            // Add form submit event listener
+            document.getElementById('editForm').addEventListener('submit', handleEditSubmit)
+        }
+
+        // Handle edit form submission
+        async function handleEditSubmit(e) {
+            e.preventDefault()
+            
+            if (!currentEditingData) {
+                alert('Tidak ada data untuk diedit')
+                return
+            }
+            
+            try {
+                // Collect form data
+                const updatedData = {
+                    nama_lengkap: document.getElementById('editNamaLengkap').value,
+                    jenis_kelamin: document.getElementById('editJenisKelamin').value,
+                    tempat_lahir: document.getElementById('editTempatLahir').value,
+                    tanggal_lahir: document.getElementById('editTanggalLahir').value,
+                    kontak_wa: document.getElementById('editKontakWa').value,
+                    utusan: document.getElementById('editUtusan').value,
+                    alamat_jalan: document.getElementById('editAlamatJalan').value,
+                    desa_kelurahan: document.getElementById('editDesaKelurahan').value,
+                    kecamatan: document.getElementById('editKecamatan').value,
+                    kritik_saran: document.getElementById('editKritikSaran').value
+                }
+                
+                console.log('Updating data:', updatedData)
+                
+                // Update data in Supabase
+                const { error } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .update(updatedData)
+                    .eq('id', currentEditingData.id)
+                
+                if (error) {
+                    console.error('Error updating data:', error)
+                    alert('Gagal mengupdate data: ' + error.message)
+                    return
+                }
+                
+                // Update local data
+                const index = allData.findIndex(item => item.id === currentEditingData.id)
+                if (index !== -1) {
+                    allData[index] = { ...allData[index], ...updatedData }
+                    filteredData = [...allData]
+                }
+                
+                // Refresh table and statistics
+                updateStatistics()
+                updateCharts()
+                renderTable()
+                
+                // Close edit modal and show success message
+                closeEditModal()
+                alert('Data berhasil diupdate!')
+                
+            } catch (error) {
+                console.error('Error in handleEditSubmit:', error)
+                alert('Terjadi kesalahan saat mengupdate data: ' + error.message)
+            }
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden')
+            currentEditingData = null
+        }
+
+        // Delete data function
+        function deleteData() {
+            console.log('deleteData() called')
+            console.log('currentDeletingData:', currentDeletingData)
+            console.log('currentEditingData:', currentEditingData)
+            
+            // Try to get data from currentEditingData if currentDeletingData is null
+            const dataToDelete = currentDeletingData || currentEditingData
+            
+            if (!dataToDelete) {
+                console.error('No data to delete - both currentDeletingData and currentEditingData are null')
+                alert('Tidak ada data untuk dihapus. Silakan buka detail pendaftar terlebih dahulu.')
+                return
+            }
+            
+            console.log('Deleting data:', dataToDelete)
+            showDeleteModal(dataToDelete)
+        }
+
+        // Show delete confirmation modal
+        function showDeleteModal(data) {
+            console.log('showDeleteModal() called with data:', data)
+            currentDeletingData = data
+            
+            const deleteModal = document.getElementById('deleteModal')
+            console.log('Delete modal element:', deleteModal)
+            
+            if (deleteModal) {
+                deleteModal.classList.remove('hidden')
+                console.log('Delete modal classes after removing hidden:', deleteModal.className)
+                console.log('Delete modal should now be visible')
+            } else {
+                console.error('Delete modal element not found!')
+                alert('Modal konfirmasi tidak ditemukan. Silakan refresh halaman.')
+            }
+        }
+
+        // Close delete modal
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden')
+            currentDeletingData = null
+        }
+
+        // Confirm delete function
+        async function confirmDelete() {
+            if (!currentDeletingData) {
+                alert('Tidak ada data untuk dihapus')
+                return
+            }
+            
+            try {
+                console.log('=== CONFIRM DELETE START ===')
+                console.log('Deleting data:', currentDeletingData)
+                console.log('Data ID:', currentDeletingData.id)
+                console.log('Data ID type:', typeof currentDeletingData.id)
+                
+                // Check if Supabase client is available
+                if (!window.supabaseClient) {
+                    console.error('Supabase client not available')
+                    alert('Koneksi database tidak tersedia. Silakan refresh halaman.')
+                    return
+                }
+                
+                console.log('Supabase client available:', !!window.supabaseClient)
+                
+                // Delete photos from storage if they exist
+                console.log('Deleting photos from storage...')
+                await deletePhotosFromStorage(currentDeletingData)
+                console.log('Photos deletion completed')
+                
+                // Delete data from Supabase
+                console.log('Deleting data from Supabase...')
+                console.log('Table: pendaftaran_diklat')
+                console.log('ID to delete:', currentDeletingData.id)
+                
+                // First, try to find the record to verify it exists
+                console.log('Verifying record exists...')
+                const { data: verifyData, error: verifyError } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .select('id, nama_lengkap')
+                    .eq('id', currentDeletingData.id)
+                    .limit(1)
+                
+                console.log('Verify result:', verifyData)
+                console.log('Verify error:', verifyError)
+                
+                if (verifyError) {
+                    console.error('Error verifying record:', verifyError)
+                    alert('Gagal memverifikasi data: ' + verifyError.message)
+                    return
+                }
+                
+                if (!verifyData || verifyData.length === 0) {
+                    console.warn('Record not found with current ID. Trying alternative approaches...')
+                    
+                    // Try with different ID types
+                    const alternativeIds = [
+                        String(currentDeletingData.id),
+                        Number(currentDeletingData.id),
+                        parseInt(currentDeletingData.id),
+                        currentDeletingData.id.toString()
+                    ].filter((id, index, arr) => arr.indexOf(id) === index) // Remove duplicates
+                    
+                    console.log('Trying alternative IDs:', alternativeIds)
+                    
+                    let foundRecord = null
+                    for (const altId of alternativeIds) {
+                        console.log(`Trying ID: ${altId} (${typeof altId})`)
+                        const { data: altData, error: altError } = await window.supabaseClient
+                            .from('pendaftaran_diklat')
+                            .select('id, nama_lengkap')
+                            .eq('id', altId)
+                            .limit(1)
+                        
+                        if (!altError && altData && altData.length > 0) {
+                            console.log(`Found record with ID: ${altId}`)
+                            foundRecord = altData[0]
+                            currentDeletingData.id = altId // Update the ID for deletion
+                            break
+                        }
+                    }
+                    
+                    if (!foundRecord) {
+                        console.error('Record not found with any ID format')
+                        alert('Data tidak ditemukan di database. Mungkin sudah dihapus atau ID tidak valid.')
+                        return
+                    }
+                }
+                
+                // Now proceed with deletion
+                console.log('Proceeding with deletion using ID:', currentDeletingData.id)
+                const { data: deleteResult, error } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .delete()
+                    .eq('id', currentDeletingData.id)
+                    .select() // Add select to see what was deleted
+                
+                console.log('Delete result:', deleteResult)
+                console.log('Delete error:', error)
+                
+                if (error) {
+                    console.error('Error deleting data:', error)
+                    console.error('Error details:', {
+                        message: error.message,
+                        details: error.details,
+                        hint: error.hint,
+                        code: error.code
+                    })
+                    alert('Gagal menghapus data: ' + error.message + '\n\nDetail: ' + JSON.stringify(error))
+                    return
+                }
+                
+                if (!deleteResult || deleteResult.length === 0) {
+                    console.warn('No data was deleted. Data might not exist or ID mismatch.')
+                    alert('Data tidak ditemukan atau sudah dihapus sebelumnya.')
+                    return
+                }
+                
+                console.log('Data successfully deleted from database:', deleteResult)
+                
+                // Remove from local data
+                const beforeCount = allData.length
+                allData = allData.filter(item => item.id !== currentDeletingData.id)
+                const afterCount = allData.length
+                console.log(`Local data: ${beforeCount} -> ${afterCount} (removed ${beforeCount - afterCount})`)
+                
+                filteredData = [...allData]
+                
+                // Refresh table and statistics
+                console.log('Refreshing UI...')
+                updateStatistics()
+                updateCharts()
+                renderTable()
+                
+                // Close modals and show success message
+                closeDeleteModal()
+                closeModal()
+                alert('Data berhasil dihapus!')
+                
+                console.log('=== CONFIRM DELETE COMPLETED ===')
+                
+            } catch (error) {
+                console.error('=== CONFIRM DELETE ERROR ===')
+                console.error('Error in confirmDelete:', error)
+                console.error('Error stack:', error.stack)
+                alert('Terjadi kesalahan saat menghapus data: ' + error.message + '\n\nSilakan cek console untuk detail error.')
+            }
+        }
+
+        // Delete photos from storage
+        async function deletePhotosFromStorage(data) {
+            try {
+                console.log('=== DELETE PHOTOS FROM STORAGE START ===')
+                console.log('Data for photo deletion:', data)
+                
+                const photosToDelete = []
+                
+                // Check if KTP photo exists
+                if (data.foto_url) {
+                    photosToDelete.push({ url: data.foto_url, type: 'KTP' })
+                    console.log('KTP photo found:', data.foto_url)
+                } else {
+                    console.log('No KTP photo found')
+                }
+                
+                // Check if pas photo exists
+                if (data.pas_url) {
+                    photosToDelete.push({ url: data.pas_url, type: 'PAS' })
+                    console.log('PAS photo found:', data.pas_url)
+                } else {
+                    console.log('No PAS photo found')
+                }
+                
+                console.log('Total photos to delete:', photosToDelete.length)
+                
+                if (photosToDelete.length === 0) {
+                    console.log('No photos to delete')
+                    return
+                }
+                
+                // Delete photos from storage
+                for (const photo of photosToDelete) {
+                    try {
+                        console.log(`Deleting ${photo.type} photo:`, photo.url)
+                        
+                        // Extract file path from URL
+                        const urlParts = photo.url.split('/')
+                        const fileName = urlParts[urlParts.length - 1]
+                        const filePath = `pendaftaran_diklat/${fileName}`
+                        
+                        console.log('File path to delete:', filePath)
+                        
+                        const { data: deleteResult, error } = await window.supabaseClient.storage
+                            .from('uploads')
+                            .remove([filePath])
+                        
+                        console.log('Photo delete result:', deleteResult)
+                        console.log('Photo delete error:', error)
+                        
+                        if (error) {
+                            console.warn(`Failed to delete ${photo.type} photo:`, filePath, error)
+                        } else {
+                            console.log(`Successfully deleted ${photo.type} photo:`, filePath)
+                        }
+                    } catch (error) {
+                        console.warn(`Error deleting ${photo.type} photo:`, photo.url, error)
+                    }
+                }
+                
+                console.log('=== DELETE PHOTOS FROM STORAGE COMPLETED ===')
+                
+            } catch (error) {
+                console.error('=== DELETE PHOTOS FROM STORAGE ERROR ===')
+                console.error('Error in deletePhotosFromStorage:', error)
+                // Don't throw error here, just log it
+                // Data deletion should continue even if photo deletion fails
+            }
+        }
+
+
+        // Debug function to check database structure
+        async function debugDatabaseStructure() {
+            try {
+                console.log('=== DEBUG DATABASE STRUCTURE ===')
+                
+                if (!window.supabaseClient) {
+                    console.error('Supabase client not available')
+                    return
+                }
+                
+                // Get a sample record to see the structure
+                const { data: sampleData, error } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .select('*')
+                    .limit(1)
+                
+                if (error) {
+                    console.error('Error getting sample data:', error)
+                    return
+                }
+                
+                if (sampleData && sampleData.length > 0) {
+                    const sample = sampleData[0]
+                    console.log('Sample record structure:', sample)
+                    console.log('ID value:', sample.id)
+                    console.log('ID type:', typeof sample.id)
+                    console.log('All keys:', Object.keys(sample))
+                    
+                    // Check if ID is UUID or integer
+                    if (typeof sample.id === 'string' && sample.id.includes('-')) {
+                        console.log('ID appears to be UUID format')
+                    } else if (typeof sample.id === 'number' || !isNaN(Number(sample.id))) {
+                        console.log('ID appears to be numeric format')
+                    } else {
+                        console.log('ID format is unclear:', sample.id)
+                    }
+                } else {
+                    console.log('No data found in database')
+                }
+                
+                console.log('=== END DEBUG ===')
+                
+            } catch (error) {
+                console.error('Error in debugDatabaseStructure:', error)
+            }
+        }
+
+
+        // Update charts on window resize
+        window.addEventListener('resize', function() {
+            // Debounce resize events
+            clearTimeout(window.resizeTimeout)
+            window.resizeTimeout = setTimeout(function() {
+                updateCharts()
+            }, 250)
+        })
+
+        // Cleanup charts when page is unloaded
+        window.addEventListener('beforeunload', function() {
+            if (genderChart) {
+                genderChart.destroy()
+            }
+            if (ageChart) {
+                ageChart.destroy()
+            }
+        })
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal()
+            }
+        })
+        
+        // Close password modal when clicking outside
+        document.getElementById('passwordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal()
+            }
+        })
+        
+        // Close edit modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal()
+            }
+        })
+        
+        // Close delete modal when clicking outside
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal()
+            }
+        })
+    </script>
+</body>
+</html>
