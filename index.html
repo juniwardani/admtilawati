@@ -586,9 +586,6 @@
                                 class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                             Sebelumnya
                         </button>
-                        <div id="pageNumbers" class="flex space-x-1">
-                            <!-- Page numbers akan dimuat di sini -->
-                        </div>
                         <button id="nextPage" onclick="changePage(1)" 
                                 class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                             Selanjutnya
@@ -1197,30 +1194,6 @@
             // Update pagination buttons
             document.getElementById('prevPage').disabled = currentPage === 1
             document.getElementById('nextPage').disabled = currentPage === totalPages
-
-            // Update page numbers
-            const pageNumbers = document.getElementById('pageNumbers')
-            pageNumbers.innerHTML = ''
-
-            const maxVisiblePages = 5
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
-
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1)
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('button')
-                pageBtn.textContent = i
-                pageBtn.className = `px-3 py-2 text-sm font-medium rounded-md ${
-                    i === currentPage 
-                        ? 'bg-blue-500 text-white' 
-                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`
-                pageBtn.onclick = () => goToPage(i)
-                pageNumbers.appendChild(pageBtn)
-            }
         }
 
         // Change page
@@ -1232,13 +1205,6 @@
             }
         }
 
-        // Go to specific page
-        function goToPage(page) {
-            if (page >= 1 && page <= totalPages) {
-                currentPage = page
-                renderTable()
-            }
-        }
 
         // Calculate age
         function calculateAge(birthDate) {
