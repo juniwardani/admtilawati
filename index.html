@@ -421,7 +421,7 @@
                         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                             Dashboard Admin
                         </h1>
-                        <p class="text-sm text-gray-600">Peserta Diklat Tilawati Level 1</p>
+                        <p class="text-sm text-gray-600">Pendaftaran Diklat Tilawati Level 1</p>
                 </div>
                 </div>
                 </div>
@@ -517,6 +517,35 @@
                 </h3>
                 <div class="h-64 sm:h-72 flex items-center justify-center">
                     <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row: Kecamatan & Desa/Kelurahan -->
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
+            <!-- Kecamatan Chart -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"></path>
+                    </svg>
+                    Distribusi Kecamatan (Top 5)
+                </h3>
+                <div class="h-64 sm:h-72 flex items-center justify-center">
+                    <canvas id="kecamatanChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Desa/Kelurahan Chart -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    Distribusi Desa/Kelurahan (Top 5)
+                </h3>
+                <div class="h-64 sm:h-72 flex items-center justify-center">
+                    <canvas id="desaChart"></canvas>
                 </div>
             </div>
         </div>
@@ -712,17 +741,7 @@
                         </svg>
                         Detail Pendaftar
                     </h3>
-                    <div class="flex items-center space-x-2">
-                        <button id="editBtn" onclick="editData()" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors" title="Edit Data">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                        </button>
-                        <button id="deleteBtn" onclick="deleteData()" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" title="Hapus Data">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
+                    <div class="flex items-center">
                         <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors" title="Tutup">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -772,6 +791,118 @@
             }
         }
 
+        // Helper: aggregate counts dan kembalikan Top N + "Lainnya"
+        function aggregateTopCounts(items, key, topN = 5) {
+            const counts = {}
+            items.forEach(item => {
+                const raw = item[key]
+                const value = (raw && String(raw).trim()) ? String(raw).trim() : 'Tidak diketahui'
+                counts[value] = (counts[value] || 0) + 1
+            })
+
+            const entries = Object.entries(counts).sort((a, b) => b[1] - a[1])
+            const top = entries.slice(0, topN)
+
+            return {
+                labels: top.map(([name]) => name),
+                data: top.map(([, count]) => count)
+            }
+        }
+
+        // Update kecamatan chart
+        function updateKecamatanChart() {
+            const canvas = document.getElementById('kecamatanChart')
+            if (!canvas) return
+            const ctx = canvas.getContext('2d')
+
+            if (kecamatanChart) {
+                kecamatanChart.destroy()
+            }
+
+            const agg = aggregateTopCounts(allData, 'kecamatan', 5)
+            const screenWidth = window.innerWidth
+
+            kecamatanChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: agg.labels,
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: agg.data,
+                        backgroundColor: '#8B5CF6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: screenWidth <= 640 ? 45 : 0,
+                                minRotation: screenWidth <= 640 ? 45 : 0,
+                                font: { size: screenWidth <= 640 ? 10 : 12 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            })
+        }
+
+        // Update desa/kelurahan chart
+        function updateDesaChart() {
+            const canvas = document.getElementById('desaChart')
+            if (!canvas) return
+            const ctx = canvas.getContext('2d')
+
+            if (desaChart) {
+                desaChart.destroy()
+            }
+
+            const agg = aggregateTopCounts(allData, 'desa_kelurahan', 5)
+            const screenWidth = window.innerWidth
+
+            desaChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: agg.labels,
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: agg.data,
+                        backgroundColor: '#06B6D4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: screenWidth <= 640 ? 45 : 0,
+                                minRotation: screenWidth <= 640 ? 45 : 0,
+                                font: { size: screenWidth <= 640 ? 10 : 12 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            })
+        }
+
         // Global variables
         let allData = []
         let filteredData = []
@@ -791,8 +922,7 @@
             loadData()
             setupEventListeners()
             
-            // Add debug button
-            setTimeout(addDebugButton, 1000)
+            // Debug button removed
         })
 
         // Test Supabase connection
@@ -862,11 +992,11 @@
                 
                 console.log('Memulai pengambilan data dari Supabase...')
                 
-                // Ambil data pendaftaran dengan kolom foto_url dan pas_url
+                // Ambil data pendaftaran terurut berdasarkan nama
                 const { data: pendaftaranData, error: pendaftaranError } = await window.supabaseClient
                     .from('pendaftaran_diklat')
                     .select('*')
-                    .order('created_at', { ascending: false })
+                    .order('nama_lengkap', { ascending: true })
 
                 if (pendaftaranError) {
                     console.error('Error mengambil data pendaftaran:', pendaftaranError)
@@ -877,8 +1007,12 @@
 
                 // Tidak perlu mengambil data file_uploads lagi karena menggunakan kolom foto_url dan pas_url
 
-                // Simpan data pendaftaran langsung (tidak perlu gabung dengan file_uploads)
-                allData = pendaftaranData || []
+                // Simpan data pendaftaran dan pastikan terurut nama
+                allData = (pendaftaranData || []).slice().sort((a, b) => {
+                    const na = (a.nama_lengkap || '').toString().trim().toLowerCase()
+                    const nb = (b.nama_lengkap || '').toString().trim().toLowerCase()
+                    return na.localeCompare(nb, 'id')
+                })
                 
                 filteredData = [...allData]
                 
@@ -937,11 +1071,15 @@
         function updateCharts() {
             updateGenderChart()
             updateAgeChart()
+            updateKecamatanChart()
+            updateDesaChart()
         }
 
         // Global chart instances
         let genderChart = null
         let ageChart = null
+        let kecamatanChart = null
+        let desaChart = null
 
         // Update gender chart
         function updateGenderChart() {
@@ -1098,6 +1236,10 @@
                 return nama.includes(searchTerm) || 
                        alamat.includes(searchTerm) || 
                        utusan.includes(searchTerm)
+            }).slice().sort((a, b) => {
+                const na = (a.nama_lengkap || '').toString().trim().toLowerCase()
+                const nb = (b.nama_lengkap || '').toString().trim().toLowerCase()
+                return na.localeCompare(nb, 'id')
             })
             
             currentPage = 1
@@ -1669,32 +1811,92 @@
                 }
                 
                 console.log('Updating data:', updatedData)
-                
-                // Update data in Supabase
-                const { error } = await window.supabaseClient
+
+                // Cek Supabase client
+                if (!window.supabaseClient) {
+                    console.error('Supabase client not initialized')
+                    alert('Koneksi database belum siap. Silakan refresh halaman.')
+                    return
+                }
+
+                // Verifikasi record ada (atasi kemungkinan mismatch tipe ID)
+                let editableId = currentEditingData.id
+                let { data: verifyData, error: verifyError } = await window.supabaseClient
+                    .from('pendaftaran_diklat')
+                    .select('id')
+                    .eq('id', editableId)
+                    .limit(1)
+
+                if (verifyError) {
+                    console.warn('Verifikasi awal gagal:', verifyError)
+                }
+
+                if (!verifyData || verifyData.length === 0) {
+                    const rawId = currentEditingData.id
+                    const alternativeIds = []
+                    if (rawId !== undefined && rawId !== null) {
+                        // original
+                        alternativeIds.push(rawId)
+                        // as string
+                        const asString = String(rawId)
+                        if (!alternativeIds.includes(asString)) alternativeIds.push(asString)
+                        // as number
+                        const asNumber = Number(rawId)
+                        if (!Number.isNaN(asNumber) && !alternativeIds.includes(asNumber)) alternativeIds.push(asNumber)
+                        // as int
+                        const asInt = parseInt(rawId, 10)
+                        if (!Number.isNaN(asInt) && !alternativeIds.includes(asInt)) alternativeIds.push(asInt)
+                    }
+
+                    for (const altId of alternativeIds) {
+                        const { data: altData, error: altErr } = await window.supabaseClient
+                            .from('pendaftaran_diklat')
+                            .select('id')
+                            .eq('id', altId)
+                            .limit(1)
+                        if (!altErr && altData && altData.length > 0) {
+                            editableId = altId
+                            break
+                        }
+                    }
+                }
+
+                // Lakukan update dan minta baris yang terupdate
+                const { data: updatedRows, error } = await window.supabaseClient
                     .from('pendaftaran_diklat')
                     .update(updatedData)
-                    .eq('id', currentEditingData.id)
-                
+                    .eq('id', editableId)
+                    .select()
+
                 if (error) {
                     console.error('Error updating data:', error)
                     alert('Gagal mengupdate data: ' + error.message)
                     return
                 }
-                
-                // Update local data
-                const index = allData.findIndex(item => item.id === currentEditingData.id)
-                if (index !== -1) {
-                    allData[index] = { ...allData[index], ...updatedData }
-                    filteredData = [...allData]
+
+                if (!updatedRows || updatedRows.length === 0) {
+                    alert('Tidak ada data yang terupdate. Coba ulangi atau refresh halaman.')
+                    return
                 }
-                
-                // Refresh table and statistics
+
+                // Sinkronkan data lokal (cari berdasarkan ID dengan perbandingan ketat dan longgar)
+                const idxStrict = allData.findIndex(item => item.id === editableId)
+                const idxLoose = idxStrict === -1 ? allData.findIndex(item => String(item.id) === String(editableId)) : idxStrict
+                const idx = idxLoose
+                if (idx !== -1) {
+                    allData[idx] = { ...allData[idx], ...updatedRows[0] }
+                } else {
+                    // Jika tidak ketemu, muat ulang data agar konsisten
+                    await loadData()
+                }
+                filteredData = [...allData]
+
+                // Refresh UI
                 updateStatistics()
                 updateCharts()
                 renderTable()
-                
-                // Close edit modal and show success message
+
+                // Tutup modal & info
                 closeEditModal()
                 alert('Data berhasil diupdate!')
                 
@@ -1970,52 +2172,7 @@
         }
 
 
-        // Debug function to check database structure
-        async function debugDatabaseStructure() {
-            try {
-                console.log('=== DEBUG DATABASE STRUCTURE ===')
-                
-                if (!window.supabaseClient) {
-                    console.error('Supabase client not available')
-                    return
-                }
-                
-                // Get a sample record to see the structure
-                const { data: sampleData, error } = await window.supabaseClient
-                    .from('pendaftaran_diklat')
-                    .select('*')
-                    .limit(1)
-                
-                if (error) {
-                    console.error('Error getting sample data:', error)
-                    return
-                }
-                
-                if (sampleData && sampleData.length > 0) {
-                    const sample = sampleData[0]
-                    console.log('Sample record structure:', sample)
-                    console.log('ID value:', sample.id)
-                    console.log('ID type:', typeof sample.id)
-                    console.log('All keys:', Object.keys(sample))
-                    
-                    // Check if ID is UUID or integer
-                    if (typeof sample.id === 'string' && sample.id.includes('-')) {
-                        console.log('ID appears to be UUID format')
-                    } else if (typeof sample.id === 'number' || !isNaN(Number(sample.id))) {
-                        console.log('ID appears to be numeric format')
-                    } else {
-                        console.log('ID format is unclear:', sample.id)
-                    }
-                } else {
-                    console.log('No data found in database')
-                }
-                
-                console.log('=== END DEBUG ===')
-                
-            } catch (error) {
-                console.error('Error in debugDatabaseStructure:', error)
-            }
-        }
+        // Debug function removed
 
 
         // Update charts on window resize
@@ -2035,7 +2192,15 @@
             if (ageChart) {
                 ageChart.destroy()
             }
+            if (kecamatanChart) {
+                kecamatanChart.destroy()
+            }
+            if (desaChart) {
+                desaChart.destroy()
+            }
         })
+
+        // Debug button removed
 
         // Close modal when clicking outside
         document.getElementById('detailModal').addEventListener('click', function(e) {
