@@ -797,7 +797,7 @@
             charts.paymentType = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Buku', 'Tnp Buku'],
+                    labels: ['Buku', 'Belum Memiliki Buku'],
                     datasets: [{
                         data: [withBookCount, withoutBookCount],
                         backgroundColor: ['#10b981', '#ef4444'],
@@ -920,7 +920,7 @@
                 const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';
                 const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';
                 const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';
-                const paymentText = item.payment_type === 'withBook' ? 'Dgn Buku' : 'Tnp Buku';
+                const paymentText = item.payment_type === 'withBook' ? 'Sudah Memiliki Buku' : 'Belum Memiliki Buku';
                 const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';
                 const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');
                 
