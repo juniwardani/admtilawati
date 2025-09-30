@@ -638,12 +638,12 @@
                 
                 const withBookOption = document.createElement('option');
                 withBookOption.value = 'withBook';
-                withBookOption.textContent = 'Dengan Buku';
+                withBookOption.textContent = 'Sudah Memiliki Buku';
                 secondFilter.appendChild(withBookOption);
                 
                 const withoutBookOption = document.createElement('option');
                 withoutBookOption.value = 'withoutBook';
-                withoutBookOption.textContent = 'Tanpa Buku';
+                withoutBookOption.textContent = 'Belum Memiliki Buku';
                 secondFilter.appendChild(withoutBookOption);
             }
         }
@@ -1108,7 +1108,7 @@
                 const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';
                 const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';
                 const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';
-                const paymentText = item.payment_type === 'withBook' ? 'Dengan Buku' : 'Tanpa Buku';
+                const paymentText = item.payment_type === 'withBook' ? 'Sudah Memiliki Buku' : 'Belum Memiliki Buku';
                 const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';
                 const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');
                 
