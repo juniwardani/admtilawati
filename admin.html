@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Diklat Tilawati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Header selaras dengan pendaftaran.html -->
+        <div class="text-center text-white mb-8">
+            <div class="flex justify-center items-center gap-6 mb-6">
+                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-filter backdrop-blur-sm border border-white border-opacity-30 overflow-hidden">
+                    <img src="img/logo1.jpg" alt="Logo 1" class="w-12 h-12 object-contain" />
+                </div>
+                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-filter backdrop-blur-sm border border-white border-opacity-30 overflow-hidden">
+                    <img src="img/logo2.jpg" alt="Logo 2" class="w-12 h-12 object-contain" />
+                </div>
+                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-filter backdrop-blur-sm border border-white border-opacity-30 overflow-hidden">
+                    <img src="img/logo3.jpg" alt="Logo 3" class="w-12 h-12 object-contain" />
+                </div>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">Dashboard Admin</h1>
+            <p class="text-gray-100">Pantau perkembangan peserta dan statistik pendaftaran</p>
+        </div>
+
+        <!-- Ringkasan Angka Utama -->
+        <section class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+            <div class="bg-white rounded-xl border p-3">
+                <div class="text-sm text-gray-500">Total Peserta</div>
+                <div id="statTotalPeserta" class="text-2xl font-bold">-</div>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <div class="text-sm text-gray-500">Total Dana (Semua Metode)</div>
+                <div id="statTotalDana" class="text-2xl font-bold">Rp -</div>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <div class="text-sm text-gray-500">Dana via Transfer</div>
+                <div id="statDanaTransfer" class="text-2xl font-bold">Rp -</div>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <div class="text-sm text-gray-500">Dana via Cash</div>
+                <div id="statDanaCash" class="text-2xl font-bold">Rp -</div>
+            </div>
+        </section>
+
+        <!-- Filter -->
+        <section class="bg-white rounded-xl border p-3 mb-6">
+            <div class="flex flex-col md:flex-row gap-3 items-start md:items-end">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Level</label>
+                    <select id="filterLevel" class="border rounded-lg px-3 py-2">
+                        <option value="">Semua</option>
+                        <option value="level1">Level 1</option>
+                        <option value="level2">Level 2</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Jenis Pembayaran</label>
+                    <select id="filterPaymentType" class="border rounded-lg px-3 py-2">
+                        <option value="">Semua</option>
+                        <option value="withBook">Sudah Memiliki Buku</option>
+                        <option value="withoutBook">Belum Memiliki Buku</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Metode Pembayaran</label>
+                    <select id="filterPaymentMethod" class="border rounded-lg px-3 py-2">
+                        <option value="">Semua</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="cash">Cash</option>
+                    </select>
+                </div>
+                <div class="md:ml-auto w-full md:w-auto">
+                    <label class="block text-sm text-gray-600 mb-1">Cari</label>
+                    <input id="filterSearch" type="text" placeholder="Nama/WA/Instansi" class="border rounded-lg px-3 py-2 w-full md:w-64" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistik -->
+        <section class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Statistik Usia</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartUsia"></canvas></div>
+                <ul id="statUsia" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Statistik Jenis Kelamin</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartGender"></canvas></div>
+                <ul id="statGender" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Statistik Level</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartLevel"></canvas></div>
+                <ul id="statLevel" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Statistik Jenis Pembayaran</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartPaymentType"></canvas></div>
+                <ul id="statPaymentType" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Statistik Metode Pembayaran</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartPaymentMethod"></canvas></div>
+                <ul id="statPaymentMethod" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+            <div class="bg-white rounded-xl border p-3">
+                <h2 class="font-semibold text-gray-800 mb-3">Rincian Dana per Metode</h2>
+                <div class="h-48 sm:h-56 md:h-64"><canvas id="chartDanaMethod"></canvas></div>
+                <ul id="statDanaMethod" class="text-sm text-gray-700 space-y-1 mt-3"></ul>
+            </div>
+        </section>
+
+        <!-- Tabel Peserta -->
+        <section class="bg-white rounded-xl border overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Nama</th>
+                            <th class="px-3 py-2 text-left">TTL</th>
+                            <th class="px-3 py-2 text-left">Gender</th>
+                            <th class="px-3 py-2 text-left">WA</th>
+                            <th class="px-3 py-2 text-left">Alamat</th>
+                            <th class="px-3 py-2 text-left">Instansi</th>
+                            <th class="px-3 py-2 text-left">Level</th>
+                            <th class="px-3 py-2 text-left">Jenis Bayar</th>
+                            <th class="px-3 py-2 text-left">Metode</th>
+                            <th class="px-3 py-2 text-right">Nominal</th>
+                            <th class="px-3 py-2 text-left">Bukti Transfer</th>
+                            <th class="px-3 py-2 text-left">Dibuat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y"></tbody>
+                </table>
+            </div>
+            <div id="tableEmpty" class="hidden p-6 text-center text-gray-500">Belum ada data.</div>
+        </section>
+        <!-- Modal Pratinjau Bukti Transfer -->
+        <div id="proofModal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <div class="relative max-w-3xl w-full">
+                <button type="button" aria-label="Tutup" onclick="closeProof()" class="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full w-9 h-9 shadow flex items-center justify-center">✖</button>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg">
+                    <img id="proofImage" src="" alt="Bukti Transfer" class="w-full h-auto max-h-[80vh] object-contain" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Konfigurasi Supabase (mengacu ke pendaftaran.html)
+    const supabaseUrl = 'https://iwnwqcxigtywetgcmlou.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bndxY3hpZ3R5d2V0Z2NtbG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MjQ4MTUsImV4cCI6MjA1MTQwMDgxNX0.fjdJlTVav4Gm8ku9rBmRuLoae5ViFxas7Uu069ItfnY';
+    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Mapping nominal dari pendaftaran.html
+    const NOMINAL_BY_TYPE = {
+        withBook: 250000,
+        withoutBook: 350000,
+    };
+
+    // Util
+    const rupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+    function calcAge(dateStr) {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return null;
+        const today = new Date();
+        let age = today.getFullYear() - d.getFullYear();
+        const m = today.getMonth() - d.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+        return age;
+    }
+
+    function groupCounts(items, keyFn) {
+        const map = new Map();
+        for (const it of items) {
+            const key = keyFn(it) ?? '-';
+            map.set(key, (map.get(key) || 0) + 1);
+        }
+        return Array.from(map.entries()).sort((a,b)=> String(a[0]).localeCompare(String(b[0])));
+    }
+
+    function renderList(el, pairs, valueFormatter) {
+        el.innerHTML = '';
+        for (const [k, v] of pairs) {
+            const li = document.createElement('li');
+            li.className = 'flex justify-between';
+            li.innerHTML = `<span>${k}</span><span class="font-semibold">${valueFormatter ? valueFormatter(v) : v}</span>`;
+            el.appendChild(li);
+        }
+        if (!pairs.length) {
+            const li = document.createElement('li');
+            li.className = 'text-gray-500';
+            li.textContent = 'Tidak ada data';
+            el.appendChild(li);
+        }
+    }
+
+    function applyFilters(rows) {
+        const level = document.getElementById('filterLevel').value;
+        const pt = document.getElementById('filterPaymentType').value;
+        const pm = document.getElementById('filterPaymentMethod').value;
+        const q = document.getElementById('filterSearch').value.trim().toLowerCase();
+        return rows.filter(r => {
+            if (level && r.level !== level) return false;
+            if (pt && r.payment_type !== pt) return false;
+            if (pm && r.payment_method !== pm) return false;
+            if (q) {
+                const hit = [r.full_name, r.wa_number, r.organization]
+                    .map(x => (x||'').toString().toLowerCase()).some(t => t.includes(q));
+                if (!hit) return false;
+            }
+            return true;
+        });
+    }
+
+    function computeMoney(row) {
+        // Nominal diturunkan dari jenis pembayaran (withBook/withoutBook)
+        const base = NOMINAL_BY_TYPE[row.payment_type] || 0;
+        return base;
+    }
+
+    let charts = {};
+
+    function upsertChart(key, ctx, config) {
+        if (charts[key]) {
+            charts[key].data = config.data;
+            charts[key].options = config.options || charts[key].options;
+            charts[key].update();
+            return charts[key];
+        }
+        charts[key] = new Chart(ctx, config);
+        return charts[key];
+    }
+
+    function recomputeAndRender(allRows) {
+        const rows = applyFilters(allRows);
+
+        // Tabel
+        const tbody = document.getElementById('tableBody');
+        const empty = document.getElementById('tableEmpty');
+        tbody.innerHTML = '';
+        if (!rows.length) empty.classList.remove('hidden'); else empty.classList.add('hidden');
+        for (const r of rows) {
+            const tr = document.createElement('tr');
+            const nominal = computeMoney(r);
+            tr.innerHTML = `
+                <td class="px-3 py-2">${r.full_name||''}</td>
+                <td class="px-3 py-2">${r.birth_place||''}, ${r.birth_date||''}</td>
+                <td class="px-3 py-2">${r.gender||''}</td>
+                <td class="px-3 py-2">${r.wa_number||''}</td>
+                <td class="px-3 py-2">${[r.address_line,r.village,r.district].filter(Boolean).join(', ')}</td>
+                <td class="px-3 py-2">${r.organization||''}</td>
+                <td class="px-3 py-2">${r.level||''}</td>
+                <td class="px-3 py-2">${r.payment_type||''}</td>
+                <td class="px-3 py-2">${r.payment_method||''}</td>
+                <td class="px-3 py-2 text-right">${rupiah(nominal)}</td>
+                <td class="px-3 py-2">${r.transfer_proof_url ? `<button title="Lihat bukti transfer" aria-label="Lihat bukti transfer" class="text-gray-700 hover:text-emerald-600" onclick="openProof('${(r.transfer_proof_url||'').replace(/'/g, '&#39;')}')">👁️</button>` : '-'}</td>
+                <td class="px-3 py-2">${r.created_at ? new Date(r.created_at).toLocaleString('id-ID') : ''}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // Ringkasan dana
+        const totalPeserta = rows.length;
+        let danaTransfer = 0, danaCash = 0;
+        for (const r of rows) {
+            const nominal = computeMoney(r);
+            if (r.payment_method === 'transfer') danaTransfer += nominal;
+            else if (r.payment_method === 'cash') danaCash += nominal;
+        }
+        const totalDana = danaTransfer + danaCash;
+        document.getElementById('statTotalPeserta').textContent = String(totalPeserta);
+        document.getElementById('statDanaTransfer').textContent = rupiah(danaTransfer);
+        document.getElementById('statDanaCash').textContent = rupiah(danaCash);
+        document.getElementById('statTotalDana').textContent = rupiah(totalDana);
+
+        // Statistik usia bucket
+        const usiaBuckets = { '<=20':0, '21-30':0, '31-40':0, '41-50':0, '>=51':0 };
+        for (const r of rows) {
+            const a = calcAge(r.birth_date);
+            if (a == null) continue;
+            if (a <= 20) usiaBuckets['<=20']++;
+            else if (a <= 30) usiaBuckets['21-30']++;
+            else if (a <= 40) usiaBuckets['31-40']++;
+            else if (a <= 50) usiaBuckets['41-50']++;
+            else usiaBuckets['>=51']++;
+        }
+        const usiaEntries = Object.entries(usiaBuckets).filter(([,v])=>v>0);
+        renderList(document.getElementById('statUsia'), usiaEntries, (v)=>v);
+        const usiaCtx = document.getElementById('chartUsia').getContext('2d');
+        upsertChart('usia', usiaCtx, {
+            type: 'bar',
+            data: {
+                labels: usiaEntries.map(x=>x[0]),
+                datasets: [{
+                    label: 'Jumlah',
+                    data: usiaEntries.map(x=>x[1]),
+                    backgroundColor: '#34d399'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision:0 } } }
+            }
+        });
+
+        // Statistik gender, level, paymentType, paymentMethod
+        const genderPairs = groupCounts(rows, r=>r.gender);
+        const levelPairs = groupCounts(rows, r=>r.level);
+        const ptPairs = groupCounts(rows, r=>r.payment_type);
+        const pmPairs = groupCounts(rows, r=>r.payment_method);
+        renderList(document.getElementById('statGender'), genderPairs, (v)=>v);
+        renderList(document.getElementById('statLevel'), levelPairs, (v)=>v);
+        renderList(document.getElementById('statPaymentType'), ptPairs, (v)=>v);
+        renderList(document.getElementById('statPaymentMethod'), pmPairs, (v)=>v);
+
+        const genderCtx = document.getElementById('chartGender').getContext('2d');
+        upsertChart('gender', genderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: genderPairs.map(x=>x[0]||'-'),
+                datasets: [{ data: genderPairs.map(x=>x[1]), backgroundColor: ['#60a5fa','#f472b6','#a78bfa','#34d399'] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const levelCtx = document.getElementById('chartLevel').getContext('2d');
+        upsertChart('level', levelCtx, {
+            type: 'pie',
+            data: {
+                labels: levelPairs.map(x=>x[0]||'-'),
+                datasets: [{ data: levelPairs.map(x=>x[1]), backgroundColor: ['#34d399','#facc15','#f97316','#60a5fa'] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ptCtx = document.getElementById('chartPaymentType').getContext('2d');
+        upsertChart('paymentType', ptCtx, {
+            type: 'bar',
+            data: {
+                labels: ptPairs.map(x=>x[0]||'-'),
+                datasets: [{ label:'Jumlah', data: ptPairs.map(x=>x[1]), backgroundColor: '#a78bfa' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision:0 } } }
+            }
+        });
+
+        const pmCtx = document.getElementById('chartPaymentMethod').getContext('2d');
+        upsertChart('paymentMethod', pmCtx, {
+            type: 'bar',
+            data: {
+                labels: pmPairs.map(x=>x[0]||'-'),
+                datasets: [{ label:'Jumlah', data: pmPairs.map(x=>x[1]), backgroundColor: '#f59e0b' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision:0 } } }
+            }
+        });
+
+        // Dana per metode
+        const danaByMethod = new Map();
+        for (const r of rows) {
+            const key = r.payment_method || '-';
+            const nominal = computeMoney(r);
+            danaByMethod.set(key, (danaByMethod.get(key)||0) + nominal);
+        }
+        const danaPairs = Array.from(danaByMethod.entries());
+        renderList(document.getElementById('statDanaMethod'), danaPairs, rupiah);
+        const danaCtx = document.getElementById('chartDanaMethod').getContext('2d');
+        upsertChart('danaMethod', danaCtx, {
+            type: 'bar',
+            data: {
+                labels: danaPairs.map(x=>x[0]||'-'),
+                datasets: [{ label:'Dana (Rp)', data: danaPairs.map(x=>x[1]), backgroundColor: '#10b981' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx)=> `${ctx.dataset.label}: ${rupiah(ctx.parsed.y)}` } } },
+                scales: { y: { beginAtZero: true, ticks: { callback: (v)=> v>=1000? `${(v/1000).toFixed(0)}k` : v } } }
+            }
+        });
+    }
+
+    async function fetchRows() {
+        const { data, error } = await supabaseClient
+            .from('registrations')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) {
+            console.error(error);
+            return [];
+        }
+        return data || [];
+    }
+
+    async function main() {
+        const allRows = await fetchRows();
+        const rerender = () => recomputeAndRender(allRows);
+        ['filterLevel','filterPaymentType','filterPaymentMethod','filterSearch']
+            .forEach(id => document.getElementById(id).addEventListener('input', rerender));
+        rerender();
+
+        // Optional: realtime subscribe jika dibutuhkan
+        try {
+            supabaseClient.channel('registrations-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, async () => {
+                    const latest = await fetchRows();
+                    recomputeAndRender(latest);
+                })
+                .subscribe();
+        } catch (e) {
+            console.warn('Realtime tidak aktif:', e);
+        }
+    }
+
+    main();
+
+    // Modal handlers
+    function openProof(url) {
+        const modal = document.getElementById('proofModal');
+        const img = document.getElementById('proofImage');
+        img.src = url;
+        modal.classList.remove('hidden');
+    }
+    function closeProof() {
+        const modal = document.getElementById('proofModal');
+        const img = document.getElementById('proofImage');
+        img.src = '';
+        modal.classList.add('hidden');
+    }
+    // Tutup saat klik backdrop
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('proofModal');
+        if (!modal.classList.contains('hidden') && e.target === modal) {
+            closeProof();
+        }
+    });
+    // Tutup dengan ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeProof();
+    });
+    </script>
+</body>
+</html>
+
+
