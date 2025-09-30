@@ -1,1 +1,1199 @@
-<!DOCTYPE html><html lang="id"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Admin Dashboard - Diklat Tilawati</title>    <script src="https://cdn.tailwindcss.com"></script>    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">    <style>        body {            background-color: #f5f7fa;            font-family: 'HarmonyOS Sans SC', sans-serif;            margin: 0;            padding: 0;        }        .gradient-bg {            background: linear-gradient(135deg, #34d399 0%, #059669 100%);        }        .card {            background: white;            border-radius: 12px;            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);            transition: transform 0.3s ease;        }        .card:hover {            transform: translateY(-5px);        }        .stat-card {            border-radius: 12px;            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);            transition: all 0.3s ease;            padding: 0.5rem;        }        .stat-card:hover {            transform: translateY(-5px);            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);        }        .chart-container {            position: relative;            height: 140px;            width: 100%;        }        .table-container {            overflow-x: auto;        }        .table th {            background-color: #f0fdf4;            color: #059669;            font-weight: 600;        }        .filter-select {            background-color: #059669;            color: white;            padding: 6px 12px;            border-radius: 6px;            font-weight: 500;            transition: all 0.3s ease;            font-size: 0.7rem;        }        .filter-select:hover {            background-color: #047857;        }        .loading-spinner {            border: 4px solid rgba(255, 255, 255, 0.3);            border-radius: 50%;            border-top: 4px solid white;            width: 24px;            height: 24px;            animation: spin 1s linear infinite;        }        @keyframes spin {            0% { transform: rotate(0deg); }            100% { transform: rotate(360deg); }        }        .age-group-bar {            height: 20px;            background-color: #34d399;            border-radius: 4px;            margin-bottom: 6px;            display: flex;            align-items: center;            padding-left: 6px;            color: white;            font-weight: 500;            font-size: 0.7rem;        }                /* Modal styles */        .modal {            display: none;            position: fixed;            z-index: 1000;            left: 0;            top: 0;            width: 100%;            height: 100%;            background-color: rgba(0,0,0,0.8);            animation: fadeIn 0.3s;        }        .modal-content {            margin: auto;            display: block;            max-width: 90%;            max-height: 90%;            margin-top: 30px;            border-radius: 8px;        }        .close {            position: absolute;            top: 15px;            right: 35px;            color: #f1f1f1;            font-size: 40px;            font-weight: bold;            cursor: pointer;        }        .close:hover,        .close:focus {            color: #bbb;            text-decoration: none;            cursor: pointer;        }                /* Header styles */        .header-container {            background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);            border-radius: 16px;            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);            padding: 1.5rem;            margin-bottom: 1.5rem;            position: relative;            overflow: hidden;        }                .header-container::before {            content: '';            position: absolute;            top: -50%;            right: -50%;            width: 100%;            height: 100%;            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);            pointer-events: none;        }                .header-title {            color: white;            font-size: 1.75rem;            font-weight: 700;            margin-bottom: 0.5rem;            text-shadow: 0 2px 4px rgba(0,0,0,0.2);            position: relative;            z-index: 2;        }                .header-subtitle {            color: rgba(255, 255, 255, 0.9);            font-size: 1rem;            margin-bottom: 0;            position: relative;            z-index: 2;        }                .header-time {            background: rgba(255, 255, 255, 0.15);            backdrop-filter: blur(10px);            border-radius: 8px;            padding: 0.5rem 1rem;            color: white;            font-size: 0.875rem;            display: inline-block;            box-shadow: 0 4px 6px rgba(0,0,0,0.1);        }                .header-time-label {            font-size: 0.75rem;            opacity: 0.8;            display: block;        }                .header-time-value {            font-weight: 600;            font-size: 1rem;        }                .header-decoration {            position: absolute;            bottom: -15px;            right: 20px;            width: 120px;            height: 120px;            background: rgba(255, 255, 255, 0.1);            border-radius: 50%;            z-index: 1;        }                .header-decoration::before {            content: '';            position: absolute;            top: 15px;            left: 15px;            width: 90px;            height: 90px;            background: rgba(255, 255, 255, 0.1);            border-radius: 50%;        }                /* Number column styles */        .number-column {            width: 30px;            text-align: center;        }                /* Download button styles */        .download-btn {            background-color: #059669;            color: white;            padding: 6px 12px;            border-radius: 6px;            font-weight: 500;            transition: all 0.3s ease;            font-size: 0.7rem;            display: flex;            align-items: center;            gap: 4px;        }        .download-btn:hover {            background-color: #047857;        }                /* Reset button styles */        .reset-btn {            background-color: #f59e0b;            color: white;            padding: 6px 12px;            border-radius: 6px;            font-weight: 500;            transition: all 0.3s ease;            font-size: 0.7rem;            display: flex;            align-items: center;            gap: 4px;        }        .reset-btn:hover {            background-color: #d97706;        }                /* WhatsApp link styles */        .wa-link {            color: #25D366;            text-decoration: none;            font-weight: 500;        }        .wa-link:hover {            color: #128C7E;            text-decoration: underline;        }                /* Responsive adjustments */        @media (max-width: 768px) {            body {                padding: 2px;            }            .stat-card {                padding: 0.3rem;            }            .stat-card h3 {                font-size: 0.6rem;            }            .stat-card p {                font-size: 0.8rem;            }            .chart-container {                height: 120px;            }            .card {                padding: 0.4rem;                margin-bottom: 0.3rem;            }            .card h3 {                font-size: 0.7rem;                margin-bottom: 0.3rem;            }            .table-container {                font-size: 0.65rem;            }            .table th, .table td {                padding: 0.2rem;            }            .material-icons {                font-size: 0.9rem;            }            /* Mobile layout adjustments */            .mobile-row {                display: flex;                flex-direction: row;                gap: 4px;                margin-bottom: 4px;            }            .mobile-col {                flex: 1;            }            .filter-select {                font-size: 0.65rem;                padding: 4px 8px;            }            .btn-pagination {                padding: 2px 6px;                font-size: 0.65rem;            }            .text-xs-mobile {                font-size: 0.55rem;            }            /* Ensure pie charts don't overflow horizontally */            .pie-chart-container {                max-width: 100%;                overflow: hidden;            }            /* Make pie chart cards 40% width on mobile */            .pie-card {                width: 40%;            }            /* Header mobile adjustments */            .header-container {                padding: 1rem;                margin-bottom: 1rem;            }            .header-title {                font-size: 1.25rem;            }            .header-subtitle {                font-size: 0.875rem;            }            .header-decoration {                width: 80px;                height: 80px;                bottom: -10px;                right: 10px;            }            .header-decoration::before {                width: 60px;                height: 60px;                top: 10px;                left: 10px;            }            /* Number column mobile adjustments */            .number-column {                width: 25px;            }        }                @keyframes fadeIn {            from {opacity: 0}            to {opacity: 1}        }    </style></head><body>    <!-- Main Content -->    <div class="p-1 md:p-6">        <!-- Header with attractive styling -->        <div class="header-container">            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 relative z-10">                <div>                    <h1 class="header-title">Dashboard Admin</h1>                    <p class="header-subtitle">Statistik Pendaftaran Diklat Tilawati</p>                </div>                <div class="header-time">                    <span class="header-time-label">Terakhir diperbarui</span>                    <span class="header-time-value" id="lastUpdated">Memuat...</span>                </div>            </div>            <div class="header-decoration"></div>        </div>        <!-- Stats Cards - Mobile optimized for 2 per row -->        <div class="grid grid-cols-2 gap-1 mb-2">            <div class="stat-card bg-white">                <div class="flex items-center">                    <div class="rounded-full bg-green-100 p-1 mr-1">                        <i class="material-icons text-green-600 text-xs">people</i>                    </div>                    <div>                        <p class="text-xs text-gray-500">Total Peserta</p>                        <p class="text-sm font-bold" id="totalParticipants">0</p>                    </div>                </div>            </div>            <div class="stat-card bg-white">                <div class="flex items-center">                    <div class="rounded-full bg-blue-100 p-1 mr-1">                        <i class="material-icons text-blue-600 text-xs">payments</i>                    </div>                    <div>                        <p class="text-xs text-gray-500">Total Nominal Transfer</p>                        <p class="text-sm font-bold" id="totalNominal">Rp 0</p>                    </div>                </div>            </div>            <div class="stat-card bg-white">                <div class="flex items-center">                    <div class="rounded-full bg-purple-100 p-1 mr-1">                        <i class="material-icons text-purple-600 text-xs">school</i>                    </div>                    <div>                        <p class="text-xs text-gray-500">Level 1</p>                        <p class="text-sm font-bold" id="level1Count">0</p>                    </div>                </div>            </div>            <div class="stat-card bg-white">                <div class="flex items-center">                    <div class="rounded-full bg-yellow-100 p-1 mr-1">                        <i class="material-icons text-yellow-600 text-xs">workspace_premium</i>                    </div>                    <div>                        <p class="text-xs text-gray-500">Level 2</p>                        <p class="text-sm font-bold" id="level2Count">0</p>                    </div>                </div>            </div>        </div>        <!-- Charts Section - Mobile optimized with side-by-side layout -->        <div class="mb-2">            <!-- Mobile row for Gender and Level charts -->            <div class="mobile-row">                <div class="mobile-col card p-1 pie-card">                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Jenis Kelamin</h3>                    <div class="chart-container pie-chart-container">                        <canvas id="genderChart"></canvas>                    </div>                </div>                <div class="mobile-col card p-1 pie-card">                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Level Diklat</h3>                    <div class="chart-container pie-chart-container">                        <canvas id="levelChart"></canvas>                    </div>                </div>            </div>                        <!-- Age Distribution Chart (full width on mobile) -->            <div class="card p-1 mb-1">                <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Distribusi Usia</h3>                <div id="ageDistribution" class="space-y-1">                    <!-- Age groups will be populated here -->                </div>            </div>                        <!-- Mobile row for Syahadah Level 2 and Payment charts -->            <div class="mobile-row">                <div class="mobile-col card p-1 pie-card">                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Syahadah Level 2</h3>                    <div class="chart-container pie-chart-container">                        <canvas id="syahadahLevel2Chart"></canvas>                    </div>                </div>                <div class="mobile-col card p-1 pie-card">                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Pembayaran</h3>                    <div class="chart-container pie-chart-container">                        <canvas id="paymentTypeChart"></canvas>                    </div>                </div>            </div>        </div>        <!-- Participants Table -->        <div class="card p-1">            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-1 gap-1">                <h3 class="text-xs md:text-lg font-bold text-gray-800">Data Peserta</h3>                <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1 w-full md:w-auto">                    <select id="levelFilter" class="filter-select w-full md:w-auto" onchange="updateSecondFilter()">                        <option value="">Semua Level</option>                        <option value="level1">Level 1</option>                        <option value="level2">Level 2</option>                    </select>                    <select id="secondFilter" class="filter-select w-full md:w-auto" onchange="applyFilters()">                        <!-- Options will be populated by JavaScript based on level selection -->                    </select>                    <button onclick="downloadExcel()" class="download-btn w-full md:w-auto">                        <i class="material-icons text-xs">file_download</i>                        <span>Excel</span>                    </button>                    <button onclick="resetFilters()" class="reset-btn w-full md:w-auto">                        <i class="material-icons text-xs">refresh</i>                        <span>Reset</span>                    </button>                </div>            </div>            <div class="table-container">                <table class="min-w-full divide-y divide-gray-200">                    <thead>                        <tr>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider number-column">No</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Nama</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Tempat, Tanggal Lahir</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Jenis Kelamin</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">No. WhatsApp</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Alamat</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Desa/Kelurahan</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Kecamatan</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Asal Lembaga</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Level</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Syahadah</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Pembayaran</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Metode Pembayaran</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Bukti Transfer</th>                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Tanggal Daftar</th>                        </tr>                    </thead>                    <tbody id="participantsTableBody" class="bg-white divide-y divide-gray-200">                        <!-- Table rows will be populated here -->                    </tbody>                </table>            </div>            <div class="mt-1 flex flex-col md:flex-row justify-between items-center gap-1">                <p class="text-xs-mobile text-gray-700">Menampilkan <span id="showingCount">0</span> dari <span id="totalCount">0</span> peserta</p>                <div class="flex space-x-1">                    <button onclick="previousPage()" id="prevButton" class="btn-pagination border border-gray-300 rounded disabled:opacity-50" disabled>                        <i class="material-icons text-xs">chevron_left</i>                    </button>                    <button onclick="nextPage()" id="nextButton" class="btn-pagination border border-gray-300 rounded disabled:opacity-50" disabled>                        <i class="material-icons text-xs">chevron_right</i>                    </button>                </div>            </div>        </div>    </div>    <!-- Modal for viewing transfer proof -->    <div id="imageModal" class="modal">        <span class="close">×</span>        <img class="modal-content" id="modalImage">    </div>    <!-- Loading Overlay -->    <div id="loadingOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">        <div class="bg-white rounded-lg p-4 flex items-center">            <div class="loading-spinner mr-2"></div>            <span class="text-gray-700 text-sm font-medium">Memuat data...</span>        </div>    </div>    <script>        // Initialize Supabase        const supabaseUrl = 'https://iwnwqcxigtywetgcmlou.supabase.co';        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bndxY3hpZ3R5d2V0Z2NtbG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MjQ4MTUsImV4cCI6MjA1MTQwMDgxNX0.fjdJlTVav4Gm8ku9rBmRuLoae5ViFxas7Uu069ItfnY';        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);        // Global variables        let registrationsData = [];        let filteredData = [];        let currentPage = 1;        const itemsPerPage = 10;        let charts = {};        // Initialize dashboard        document.addEventListener('DOMContentLoaded', async function() {            // Initialize second filter options            updateSecondFilter();                        await loadData();            updateLastUpdatedTime();                        // Modal functionality            const modal = document.getElementById("imageModal");            const modalImg = document.getElementById("modalImage");            const span = document.getElementsByClassName("close")[0];                        span.onclick = function() {                modal.style.display = "none";            }                        window.onclick = function(event) {                if (event.target == modal) {                    modal.style.display = "none";                }            }        });        // Update second filter options based on level selection        function updateSecondFilter() {            const levelFilter = document.getElementById('levelFilter');            const secondFilter = document.getElementById('secondFilter');                        // Clear existing options            secondFilter.innerHTML = '';                        if (levelFilter.value === 'level2') {                // For Level 2, show syahadah options                const defaultOption = document.createElement('option');                defaultOption.value = '';                defaultOption.textContent = 'Semua Status Syahadah';                secondFilter.appendChild(defaultOption);                                const hasSyahadahOption = document.createElement('option');                hasSyahadahOption.value = 'has_syahadah';                hasSyahadahOption.textContent = 'Sudah Syahadah';                secondFilter.appendChild(hasSyahadahOption);                                const noSyahadahOption = document.createElement('option');                noSyahadahOption.value = 'no_syahadah';                noSyahadahOption.textContent = 'Belum Syahadah';                secondFilter.appendChild(noSyahadahOption);            } else {                // For other levels or no selection, show payment type options                const defaultOption = document.createElement('option');                defaultOption.value = '';                defaultOption.textContent = 'Semua Jenis Pembayaran';                secondFilter.appendChild(defaultOption);                                const withBookOption = document.createElement('option');                withBookOption.value = 'withBook';                withBookOption.textContent = 'Dengan Buku';                secondFilter.appendChild(withBookOption);                                const withoutBookOption = document.createElement('option');                withoutBookOption.value = 'withoutBook';                withoutBookOption.textContent = 'Tanpa Buku';                secondFilter.appendChild(withoutBookOption);            }        }        // Load data from Supabase        async function loadData() {            showLoading(true);            try {                const { data, error } = await supabase                    .from('registrations')                    .select('*')                    .order('created_at', { ascending: false });                if (error) throw error;                                registrationsData = data || [];                filteredData = [...registrationsData];                                updateDashboard();                updateParticipantsTable();            } catch (error) {                console.error('Error loading data:', error);                showError('Gagal memuat data. Silakan coba lagi.');            } finally {                showLoading(false);            }        }        // Update dashboard statistics and charts        function updateDashboard() {            // Calculate statistics            const totalParticipants = filteredData.length;                        // Calculate total nominal transfer only for participants with transfer proof            const totalNominalTransfer = filteredData                .filter(item => item.transfer_proof_url && item.transfer_proof_url !== '')                .reduce((sum, item) => {                    return sum + (item.payment_type === 'withBook' ? 250000 : 350000);                }, 0);                        const level1Count = filteredData.filter(item => item.level === 'level1').length;            const level2Count = filteredData.filter(item => item.level === 'level2').length;                        const maleCount = filteredData.filter(item => item.gender === 'male').length;            const femaleCount = filteredData.filter(item => item.gender === 'female').length;                        const withBookCount = filteredData.filter(item => item.payment_type === 'withBook').length;            const withoutBookCount = filteredData.filter(item => item.payment_type === 'withoutBook').length;                        // Calculate Level 2 Syahadah statistics            const level2Data = filteredData.filter(item => item.level === 'level2');            const level2HasSyahadahCount = level2Data.filter(item => item.syahadah_status === 'has_syahadah').length;            const level2NoSyahadahCount = level2Data.filter(item =>                 item.syahadah_status === 'no_syahadah' || !item.syahadah_status || item.syahadah_status === ''            ).length;                        // Update stat cards            document.getElementById('totalParticipants').textContent = totalParticipants;            document.getElementById('totalNominal').textContent = `Rp ${totalNominalTransfer.toLocaleString('id-ID')}`;            document.getElementById('level1Count').textContent = level1Count;            document.getElementById('level2Count').textContent = level2Count;                        // Update charts            updateGenderChart(maleCount, femaleCount);            updateLevelChart(level1Count, level2Count);            updatePaymentTypeChart(withBookCount, withoutBookCount);            updateSyahadahLevel2Chart(level2HasSyahadahCount, level2NoSyahadahCount);            updateAgeDistribution();        }        // Update gender chart        function updateGenderChart(maleCount, femaleCount) {            const ctx = document.getElementById('genderChart').getContext('2d');                        if (charts.gender) {                charts.gender.destroy();            }                        charts.gender = new Chart(ctx, {                type: 'pie',                data: {                    labels: ['L', 'P'],                    datasets: [{                        data: [maleCount, femaleCount],                        backgroundColor: ['#3b82f6', '#ec4899'],                        borderWidth: 0                    }]                },                options: {                    responsive: true,                    maintainAspectRatio: false,                    plugins: {                        legend: {                            position: 'bottom',                            labels: {                                boxWidth: 6,                                font: {                                    size: window.innerWidth < 768 ? 6 : 12                                }                            }                        }                    }                }            });        }        // Update level chart        function updateLevelChart(level1Count, level2Count) {            const ctx = document.getElementById('levelChart').getContext('2d');                        if (charts.level) {                charts.level.destroy();            }                        charts.level = new Chart(ctx, {                type: 'pie',                data: {                    labels: ['Lv1', 'Lv2'],                    datasets: [{                        data: [level1Count, level2Count],                        backgroundColor: ['#8b5cf6', '#f59e0b'],                        borderWidth: 0                    }]                },                options: {                    responsive: true,                    maintainAspectRatio: false,                    plugins: {                        legend: {                            position: 'bottom',                            labels: {                                boxWidth: 6,                                font: {                                    size: window.innerWidth < 768 ? 6 : 12                                }                            }                        }                    }                }            });        }        // Update payment type chart        function updatePaymentTypeChart(withBookCount, withoutBookCount) {            const ctx = document.getElementById('paymentTypeChart').getContext('2d');                        if (charts.paymentType) {                charts.paymentType.destroy();            }                        charts.paymentType = new Chart(ctx, {                type: 'pie',                data: {                    labels: ['Buku', 'Tnp Buku'],                    datasets: [{                        data: [withBookCount, withoutBookCount],                        backgroundColor: ['#10b981', '#ef4444'],                        borderWidth: 0                    }]                },                options: {                    responsive: true,                    maintainAspectRatio: false,                    plugins: {                        legend: {                            position: 'bottom',                            labels: {                                boxWidth: 6,                                font: {                                    size: window.innerWidth < 768 ? 6 : 12                                }                            }                        }                    }                }            });        }        // Update syahadah level 2 chart        function updateSyahadahLevel2Chart(hasSyahadahCount, noSyahadahCount) {            const ctx = document.getElementById('syahadahLevel2Chart').getContext('2d');                        if (charts.syahadahLevel2) {                charts.syahadahLevel2.destroy();            }                        charts.syahadahLevel2 = new Chart(ctx, {                type: 'pie',                data: {                    labels: ['Sdh', 'Blm'],                    datasets: [{                        data: [hasSyahadahCount, noSyahadahCount],                        backgroundColor: ['#22c55e', '#f87171'],                        borderWidth: 0                    }]                },                options: {                    responsive: true,                    maintainAspectRatio: false,                    plugins: {                        legend: {                            position: 'bottom',                            labels: {                                boxWidth: 6,                                font: {                                    size: window.innerWidth < 768 ? 6 : 12                                }                            }                        }                    }                }            });        }        // Update age distribution        function updateAgeDistribution() {            const ageGroups = {                '17-25': 0,                '26-35': 0,                '36-45': 0,                '46-55': 0,                '56+': 0            };                        filteredData.forEach(item => {                if (item.birth_date) {                    const birthYear = new Date(item.birth_date).getFullYear();                    const currentYear = new Date().getFullYear();                    const age = currentYear - birthYear;                                        if (age >= 17 && age <= 25) ageGroups['17-25']++;                    else if (age >= 26 && age <= 35) ageGroups['26-35']++;                    else if (age >= 36 && age <= 45) ageGroups['36-45']++;                    else if (age >= 46 && age <= 55) ageGroups['46-55']++;                    else if (age >= 56) ageGroups['56+']++;                }            });                        const container = document.getElementById('ageDistribution');            container.innerHTML = '';                        const maxCount = Math.max(...Object.values(ageGroups));                        Object.entries(ageGroups).forEach(([group, count]) => {                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;                                const ageGroupDiv = document.createElement('div');                ageGroupDiv.className = 'mb-1';                ageGroupDiv.innerHTML = `                    <div class="flex justify-between mb-1">                        <span class="text-xs-mobile font-medium">${group} tahun</span>                        <span class="text-xs-mobile font-medium">${count} orang</span>                    </div>                    <div class="w-full bg-gray-200 rounded-full h-1.5">                        <div class="bg-green-600 h-1.5 rounded-full" style="width: ${percentage}%"></div>                    </div>                `;                container.appendChild(ageGroupDiv);            });        }        // Update participants table        function updateParticipantsTable() {            const tableBody = document.getElementById('participantsTableBody');            tableBody.innerHTML = '';                        const startIndex = (currentPage - 1) * itemsPerPage;            const endIndex = startIndex + itemsPerPage;            const paginatedData = filteredData.slice(startIndex, endIndex);                        paginatedData.forEach((item, index) => {                const row = document.createElement('tr');                                const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';                const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';                const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';                const paymentText = item.payment_type === 'withBook' ? 'Dgn Buku' : 'Tnp Buku';                const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';                const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');                                // Format birth date                let birthDateText = '-';                if (item.birth_date) {                    const date = new Date(item.birth_date);                    birthDateText = `${item.birth_place || '-'}, ${date.toLocaleDateString('id-ID')}`;                }                                // Create WhatsApp link if phone number exists                let waNumber = '-';                if (item.wa_number) {                    // Clean the phone number by removing non-digit characters                    const cleanNumber = item.wa_number.replace(/\D/g, '');                    // Create WhatsApp link                    waNumber = `<a href="https://wa.me/${cleanNumber}?text=Assalamu'alaikum, saya dari KPA Tilawati Kotabaru" target="_blank" class="wa-link">${item.wa_number}</a>`;                }                                // Create proof button if transfer proof exists                let proofButton = '-';                if (item.transfer_proof_url) {                    proofButton = `<button onclick="viewImage('${item.transfer_proof_url}')" class="text-blue-600 hover:text-blue-800">                        <i class="material-icons text-xs">visibility</i>                    </button>`;                }                                row.innerHTML = `                    <td class="px-1 md:px-4 py-1 whitespace-nowrap text-center">                        <div class="text-xs-mobile font-medium text-gray-900">${startIndex + index + 1}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile font-medium text-gray-900">${item.full_name || '-'}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${birthDateText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${genderText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${waNumber}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${item.address_line || '-'}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${item.village || '-'}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${item.district || '-'}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${item.organization || '-'}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${levelText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${syahadahText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${paymentText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${paymentMethodText}</div>                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap text-center">                        ${proofButton}                    </td>                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">                        <div class="text-xs-mobile text-gray-500">${createdDate}</div>                    </td>                `;                tableBody.appendChild(row);            });                        // Update pagination info            document.getElementById('showingCount').textContent = paginatedData.length;            document.getElementById('totalCount').textContent = filteredData.length;                        // Update pagination buttons            document.getElementById('prevButton').disabled = currentPage === 1;            document.getElementById('nextButton').disabled = endIndex >= filteredData.length;        }        // View image in modal        function viewImage(imageUrl) {            const modal = document.getElementById("imageModal");            const modalImg = document.getElementById("modalImage");                        modal.style.display = "block";            modalImg.src = imageUrl;        }        // Apply filters automatically when selection changes        function applyFilters() {            const levelFilter = document.getElementById('levelFilter').value;            const secondFilter = document.getElementById('secondFilter').value;                        filteredData = registrationsData.filter(item => {                const levelMatch = !levelFilter || item.level === levelFilter;                                let secondMatch = true;                if (levelFilter === 'level2') {                    // For level 2, filter by syahadah status                    secondMatch = !secondFilter ||                         (secondFilter === 'has_syahadah' && item.syahadah_status === 'has_syahadah') ||                        (secondFilter === 'no_syahadah' && (item.syahadah_status === 'no_syahadah' || !item.syahadah_status || item.syahadah_status === ''));                } else {                    // For other levels, filter by payment type                    secondMatch = !secondFilter || item.payment_type === secondFilter;                }                                return levelMatch && secondMatch;            });                        currentPage = 1;            updateDashboard();            updateParticipantsTable();        }        // Reset filters        function resetFilters() {            // Reset filter selects            document.getElementById('levelFilter').value = '';            document.getElementById('secondFilter').value = '';                        // Update second filter options            updateSecondFilter();                        // Reset filtered data to all data            filteredData = [...registrationsData];                        // Reset pagination            currentPage = 1;                        // Update dashboard and table            updateDashboard();            updateParticipantsTable();        }        // Download data as Excel        function downloadExcel() {            // Sort data by level first, then by name            const sortedData = [...registrationsData].sort((a, b) => {                // First sort by level (level1 comes before level2)                if (a.level !== b.level) {                    return a.level === 'level1' ? -1 : 1;                }                                // Then sort by name                return a.full_name.localeCompare(b.full_name, 'id-ID');            });                        // Prepare data for Excel            const excelData = sortedData.map((item, index) => {                const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';                const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';                const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';                const paymentText = item.payment_type === 'withBook' ? 'Dengan Buku' : 'Tanpa Buku';                const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';                const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');                                // Format birth date                let birthDateText = '-';                if (item.birth_date) {                    const date = new Date(item.birth_date);                    birthDateText = `${item.birth_place || '-'}, ${date.toLocaleDateString('id-ID')}`;                }                                return {                    'No': index + 1,                    'Nama Lengkap': item.full_name || '-',                    'Tempat Lahir': item.birth_place || '-',                    'Tanggal Lahir': item.birth_date ? new Date(item.birth_date).toLocaleDateString('id-ID') : '-',                    'Jenis Kelamin': genderText,                    'Nomor WhatsApp': item.wa_number || '-',                    'Alamat Lengkap': item.address_line || '-',                    'Desa/Kelurahan': item.village || '-',                    'Kecamatan': item.district || '-',                    'Asal Lembaga/TPQ/Mandiri': item.organization || '-',                    'Level Diklat': levelText,                    'Status Syahadah': syahadahText,                    'Jenis Pembayaran': paymentText,                    'Metode Pembayaran': paymentMethodText,                    'Tanggal Daftar': createdDate                };            });                        // Create workbook            const wb = XLSX.utils.book_new();            const ws = XLSX.utils.json_to_sheet(excelData);                        // Add worksheet to workbook            XLSX.utils.book_append_sheet(wb, ws, "Data Peserta");                        // Generate Excel file and download            const today = new Date();            const dateStr = today.toLocaleDateString('id-ID').replace(/\//g, '-');            const fileName = `Data_Peserta_Diklat_Tilawati_${dateStr}.xlsx`;                        XLSX.writeFile(wb, fileName);        }        // Pagination functions        function previousPage() {            if (currentPage > 1) {                currentPage--;                updateParticipantsTable();            }        }        function nextPage() {            const maxPage = Math.ceil(filteredData.length / itemsPerPage);            if (currentPage < maxPage) {                currentPage++;                updateParticipantsTable();            }        }        // Update last updated time        function updateLastUpdatedTime() {            const now = new Date();            const timeString = now.toLocaleTimeString('id-ID', {                 hour: '2-digit',                 minute: '2-digit'             });            document.getElementById('lastUpdated').textContent = timeString;        }        // Show/hide loading overlay        function showLoading(show) {            const overlay = document.getElementById('loadingOverlay');            if (show) {                overlay.classList.remove('hidden');            } else {                overlay.classList.add('hidden');            }        }        // Show error message        function showError(message) {            // In a real app, you would show a toast or alert            alert(message);        }    </script></body></html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Diklat Tilawati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'HarmonyOS Sans SC', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 140px;
+            width: 100%;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .table th {
+            background-color: #f0fdf4;
+            color: #059669;
+            font-weight: 600;
+        }
+        .filter-select {
+            background-color: #059669;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+        }
+        .filter-select:hover {
+            background-color: #047857;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .age-group-bar {
+            height: 20px;
+            background-color: #34d399;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 6px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.7rem;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Header styles */
+        .header-container {
+            background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .header-title {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header-time {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-size: 0.875rem;
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header-time-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            display: block;
+        }
+        
+        .header-time-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .header-decoration {
+            position: absolute;
+            bottom: -15px;
+            right: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .header-decoration::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        /* Number column styles */
+        .number-column {
+            width: 30px;
+            text-align: center;
+        }
+        
+        /* Download button styles */
+        .download-btn {
+            background-color: #059669;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .download-btn:hover {
+            background-color: #047857;
+        }
+        
+        /* Reset button styles */
+        .reset-btn {
+            background-color: #f59e0b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .reset-btn:hover {
+            background-color: #d97706;
+        }
+        
+        /* WhatsApp link styles */
+        .wa-link {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .wa-link:hover {
+            color: #128C7E;
+            text-decoration: underline;
+        }
+        
+        /* Search input styles */
+        .search-input {
+            background-color: white;
+            color: #333;
+            border: 1px solid #d1d5db;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            width: 100%;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 2px;
+            }
+            .stat-card {
+                padding: 0.3rem;
+            }
+            .stat-card h3 {
+                font-size: 0.6rem;
+            }
+            .stat-card p {
+                font-size: 0.8rem;
+            }
+            .chart-container {
+                height: 120px;
+            }
+            .card {
+                padding: 0.4rem;
+                margin-bottom: 0.3rem;
+            }
+            .card h3 {
+                font-size: 0.7rem;
+                margin-bottom: 0.3rem;
+            }
+            .table-container {
+                font-size: 0.65rem;
+            }
+            .table th, .table td {
+                padding: 0.2rem;
+            }
+            .material-icons {
+                font-size: 0.9rem;
+            }
+            /* Mobile layout adjustments */
+            .mobile-row {
+                display: flex;
+                flex-direction: row;
+                gap: 4px;
+                margin-bottom: 4px;
+            }
+            .mobile-col {
+                flex: 1;
+            }
+            .filter-select {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .btn-pagination {
+                padding: 2px 6px;
+                font-size: 0.65rem;
+            }
+            .text-xs-mobile {
+                font-size: 0.55rem;
+            }
+            /* Ensure pie charts don't overflow horizontally */
+            .pie-chart-container {
+                max-width: 100%;
+                overflow: hidden;
+            }
+            /* Make pie chart cards 40% width on mobile */
+            .pie-card {
+                width: 40%;
+            }
+            /* Header mobile adjustments */
+            .header-container {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            .header-title {
+                font-size: 1.25rem;
+            }
+            .header-subtitle {
+                font-size: 0.875rem;
+            }
+            .header-decoration {
+                width: 80px;
+                height: 80px;
+                bottom: -10px;
+                right: 10px;
+            }
+            .header-decoration::before {
+                width: 60px;
+                height: 60px;
+                top: 10px;
+                left: 10px;
+            }
+            /* Number column mobile adjustments */
+            .number-column {
+                width: 25px;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0}
+            to {opacity: 1}
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="p-1 md:p-6">
+        <!-- Header with attractive styling -->
+        <div class="header-container">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 relative z-10">
+                <div>
+                    <h1 class="header-title">Dashboard Admin</h1>
+                    <p class="header-subtitle">Statistik Pendaftaran Diklat Tilawati</p>
+                </div>
+                <div class="header-time">
+                    <span class="header-time-label">Terakhir diperbarui</span>
+                    <span class="header-time-value" id="lastUpdated">Memuat...</span>
+                </div>
+            </div>
+            <div class="header-decoration"></div>
+        </div>
+
+        <!-- Stats Cards - Mobile optimized for 2 per row -->
+        <div class="grid grid-cols-2 gap-1 mb-2">
+            <div class="stat-card bg-white">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-green-100 p-1 mr-1">
+                        <i class="material-icons text-green-600 text-xs">people</i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Total Peserta</p>
+                        <p class="text-sm font-bold" id="totalParticipants">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-blue-100 p-1 mr-1">
+                        <i class="material-icons text-blue-600 text-xs">payments</i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Total Nominal Transfer</p>
+                        <p class="text-sm font-bold" id="totalNominal">Rp 0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-purple-100 p-1 mr-1">
+                        <i class="material-icons text-purple-600 text-xs">school</i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Level 1</p>
+                        <p class="text-sm font-bold" id="level1Count">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-yellow-100 p-1 mr-1">
+                        <i class="material-icons text-yellow-600 text-xs">workspace_premium</i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Level 2</p>
+                        <p class="text-sm font-bold" id="level2Count">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section - Mobile optimized with side-by-side layout -->
+        <div class="mb-2">
+            <!-- Mobile row for Gender and Level charts -->
+            <div class="mobile-row">
+                <div class="mobile-col card p-1 pie-card">
+                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Jenis Kelamin</h3>
+                    <div class="chart-container pie-chart-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+                <div class="mobile-col card p-1 pie-card">
+                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Level Diklat</h3>
+                    <div class="chart-container pie-chart-container">
+                        <canvas id="levelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Age Distribution Chart (full width on mobile) -->
+            <div class="card p-1 mb-1">
+                <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Distribusi Usia</h3>
+                <div id="ageDistribution" class="space-y-1">
+                    <!-- Age groups will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Mobile row for Syahadah Level 2 and Payment charts -->
+            <div class="mobile-row">
+                <div class="mobile-col card p-1 pie-card">
+                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Syahadah Level 2</h3>
+                    <div class="chart-container pie-chart-container">
+                        <canvas id="syahadahLevel2Chart"></canvas>
+                    </div>
+                </div>
+                <div class="mobile-col card p-1 pie-card">
+                    <h3 class="text-xs md:text-lg font-bold text-gray-800 mb-1">Statistik Pembayaran</h3>
+                    <div class="chart-container pie-chart-container">
+                        <canvas id="paymentTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Participants Table -->
+        <div class="card p-1">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-1 gap-1">
+                <h3 class="text-xs md:text-lg font-bold text-gray-800">Data Peserta</h3>
+                <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1 w-full md:w-auto">
+                    <select id="levelFilter" class="filter-select w-full md:w-auto" onchange="updateSecondFilter()">
+                        <option value="">Semua Level</option>
+                        <option value="level1">Level 1</option>
+                        <option value="level2">Level 2</option>
+                    </select>
+                    <select id="secondFilter" class="filter-select w-full md:w-auto" onchange="applyFilters()">
+                        <!-- Options will be populated by JavaScript based on level selection -->
+                    </select>
+                    <button onclick="downloadExcel()" class="download-btn w-full md:w-auto">
+                        <i class="material-icons text-xs">file_download</i>
+                        <span>Excel</span>
+                    </button>
+                    <button onclick="resetFilters()" class="reset-btn w-full md:w-auto">
+                        <i class="material-icons text-xs">refresh</i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Input -->
+            <div class="mb-2">
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari peserta (minimal 3 huruf)..." onkeyup="searchParticipants()">
+            </div>
+            
+            <div class="table-container">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider number-column">No</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Nama</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Tempat, Tanggal Lahir</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Jenis Kelamin</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">No. WhatsApp</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Alamat</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Desa/Kelurahan</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Kecamatan</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Asal Lembaga</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Level</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Syahadah</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Pembayaran</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Metode Pembayaran</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Bukti Transfer</th>
+                            <th class="px-1 md:px-4 py-1 text-left text-xs font-medium uppercase tracking-wider">Tanggal Daftar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participantsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Table rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-1 flex flex-col md:flex-row justify-between items-center gap-1">
+                <p class="text-xs-mobile text-gray-700">Menampilkan <span id="showingCount">0</span> dari <span id="totalCount">0</span> peserta</p>
+                <div class="flex space-x-1">
+                    <button onclick="previousPage()" id="prevButton" class="btn-pagination border border-gray-300 rounded disabled:opacity-50" disabled>
+                        <i class="material-icons text-xs">chevron_left</i>
+                    </button>
+                    <button onclick="nextPage()" id="nextButton" class="btn-pagination border border-gray-300 rounded disabled:opacity-50" disabled>
+                        <i class="material-icons text-xs">chevron_right</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for viewing transfer proof -->
+    <div id="imageModal" class="modal">
+        <span class="close">×</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg p-4 flex items-center">
+            <div class="loading-spinner mr-2"></div>
+            <span class="text-gray-700 text-sm font-medium">Memuat data...</span>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://iwnwqcxigtywetgcmlou.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bndxY3hpZ3R5d2V0Z2NtbG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MjQ4MTUsImV4cCI6MjA1MTQwMDgxNX0.fjdJlTVav4Gm8ku9rBmRuLoae5ViFxas7Uu069ItfnY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Global variables
+        let registrationsData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let charts = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize second filter options
+            updateSecondFilter();
+            
+            await loadData();
+            updateLastUpdatedTime();
+            
+            // Modal functionality
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const span = document.getElementsByClassName("close")[0];
+            
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+
+        // Update second filter options based on level selection
+        function updateSecondFilter() {
+            const levelFilter = document.getElementById('levelFilter');
+            const secondFilter = document.getElementById('secondFilter');
+            
+            // Clear existing options
+            secondFilter.innerHTML = '';
+            
+            if (levelFilter.value === 'level2') {
+                // For Level 2, show syahadah options
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Semua Status Syahadah';
+                secondFilter.appendChild(defaultOption);
+                
+                const hasSyahadahOption = document.createElement('option');
+                hasSyahadahOption.value = 'has_syahadah';
+                hasSyahadahOption.textContent = 'Sudah Syahadah';
+                secondFilter.appendChild(hasSyahadahOption);
+                
+                const noSyahadahOption = document.createElement('option');
+                noSyahadahOption.value = 'no_syahadah';
+                noSyahadahOption.textContent = 'Belum Syahadah';
+                secondFilter.appendChild(noSyahadahOption);
+            } else {
+                // For other levels or no selection, show payment type options
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Semua Jenis Pembayaran';
+                secondFilter.appendChild(defaultOption);
+                
+                const withBookOption = document.createElement('option');
+                withBookOption.value = 'withBook';
+                withBookOption.textContent = 'Dengan Buku';
+                secondFilter.appendChild(withBookOption);
+                
+                const withoutBookOption = document.createElement('option');
+                withoutBookOption.value = 'withoutBook';
+                withoutBookOption.textContent = 'Tanpa Buku';
+                secondFilter.appendChild(withoutBookOption);
+            }
+        }
+
+        // Load data from Supabase
+        async function loadData() {
+            showLoading(true);
+            try {
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                
+                registrationsData = data || [];
+                filteredData = [...registrationsData];
+                
+                updateDashboard();
+                updateParticipantsTable();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Gagal memuat data. Silakan coba lagi.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update dashboard statistics and charts
+        function updateDashboard() {
+            // Calculate statistics
+            const totalParticipants = filteredData.length;
+            
+            // Calculate total nominal transfer only for participants with transfer proof
+            const totalNominalTransfer = filteredData
+                .filter(item => item.transfer_proof_url && item.transfer_proof_url !== '')
+                .reduce((sum, item) => {
+                    return sum + (item.payment_type === 'withBook' ? 250000 : 350000);
+                }, 0);
+            
+            const level1Count = filteredData.filter(item => item.level === 'level1').length;
+            const level2Count = filteredData.filter(item => item.level === 'level2').length;
+            
+            const maleCount = filteredData.filter(item => item.gender === 'male').length;
+            const femaleCount = filteredData.filter(item => item.gender === 'female').length;
+            
+            const withBookCount = filteredData.filter(item => item.payment_type === 'withBook').length;
+            const withoutBookCount = filteredData.filter(item => item.payment_type === 'withoutBook').length;
+            
+            // Calculate Level 2 Syahadah statistics
+            const level2Data = filteredData.filter(item => item.level === 'level2');
+            const level2HasSyahadahCount = level2Data.filter(item => item.syahadah_status === 'has_syahadah').length;
+            const level2NoSyahadahCount = level2Data.filter(item => 
+                item.syahadah_status === 'no_syahadah' || !item.syahadah_status || item.syahadah_status === ''
+            ).length;
+            
+            // Update stat cards
+            document.getElementById('totalParticipants').textContent = totalParticipants;
+            document.getElementById('totalNominal').textContent = `Rp ${totalNominalTransfer.toLocaleString('id-ID')}`;
+            document.getElementById('level1Count').textContent = level1Count;
+            document.getElementById('level2Count').textContent = level2Count;
+            
+            // Update charts
+            updateGenderChart(maleCount, femaleCount);
+            updateLevelChart(level1Count, level2Count);
+            updatePaymentTypeChart(withBookCount, withoutBookCount);
+            updateSyahadahLevel2Chart(level2HasSyahadahCount, level2NoSyahadahCount);
+            updateAgeDistribution();
+        }
+
+        // Update gender chart
+        function updateGenderChart(maleCount, femaleCount) {
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            
+            if (charts.gender) {
+                charts.gender.destroy();
+            }
+            
+            charts.gender = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['L', 'P'],
+                    datasets: [{
+                        data: [maleCount, femaleCount],
+                        backgroundColor: ['#3b82f6', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 6,
+                                font: {
+                                    size: window.innerWidth < 768 ? 6 : 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update level chart
+        function updateLevelChart(level1Count, level2Count) {
+            const ctx = document.getElementById('levelChart').getContext('2d');
+            
+            if (charts.level) {
+                charts.level.destroy();
+            }
+            
+            charts.level = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Lv1', 'Lv2'],
+                    datasets: [{
+                        data: [level1Count, level2Count],
+                        backgroundColor: ['#8b5cf6', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 6,
+                                font: {
+                                    size: window.innerWidth < 768 ? 6 : 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update payment type chart
+        function updatePaymentTypeChart(withBookCount, withoutBookCount) {
+            const ctx = document.getElementById('paymentTypeChart').getContext('2d');
+            
+            if (charts.paymentType) {
+                charts.paymentType.destroy();
+            }
+            
+            charts.paymentType = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Buku', 'Tnp Buku'],
+                    datasets: [{
+                        data: [withBookCount, withoutBookCount],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 6,
+                                font: {
+                                    size: window.innerWidth < 768 ? 6 : 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update syahadah level 2 chart
+        function updateSyahadahLevel2Chart(hasSyahadahCount, noSyahadahCount) {
+            const ctx = document.getElementById('syahadahLevel2Chart').getContext('2d');
+            
+            if (charts.syahadahLevel2) {
+                charts.syahadahLevel2.destroy();
+            }
+            
+            charts.syahadahLevel2 = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Sdh', 'Blm'],
+                    datasets: [{
+                        data: [hasSyahadahCount, noSyahadahCount],
+                        backgroundColor: ['#22c55e', '#f87171'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 6,
+                                font: {
+                                    size: window.innerWidth < 768 ? 6 : 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update age distribution
+        function updateAgeDistribution() {
+            const ageGroups = {
+                '17-25': 0,
+                '26-35': 0,
+                '36-45': 0,
+                '46-55': 0,
+                '56+': 0
+            };
+            
+            filteredData.forEach(item => {
+                if (item.birth_date) {
+                    const birthYear = new Date(item.birth_date).getFullYear();
+                    const currentYear = new Date().getFullYear();
+                    const age = currentYear - birthYear;
+                    
+                    if (age >= 17 && age <= 25) ageGroups['17-25']++;
+                    else if (age >= 26 && age <= 35) ageGroups['26-35']++;
+                    else if (age >= 36 && age <= 45) ageGroups['36-45']++;
+                    else if (age >= 46 && age <= 55) ageGroups['46-55']++;
+                    else if (age >= 56) ageGroups['56+']++;
+                }
+            });
+            
+            const container = document.getElementById('ageDistribution');
+            container.innerHTML = '';
+            
+            const maxCount = Math.max(...Object.values(ageGroups));
+            
+            Object.entries(ageGroups).forEach(([group, count]) => {
+                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                
+                const ageGroupDiv = document.createElement('div');
+                ageGroupDiv.className = 'mb-1';
+                ageGroupDiv.innerHTML = `
+                    <div class="flex justify-between mb-1">
+                        <span class="text-xs-mobile font-medium">${group} tahun</span>
+                        <span class="text-xs-mobile font-medium">${count} orang</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-green-600 h-1.5 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(ageGroupDiv);
+            });
+        }
+
+        // Update participants table
+        function updateParticipantsTable() {
+            const tableBody = document.getElementById('participantsTableBody');
+            tableBody.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+            
+            paginatedData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';
+                const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';
+                const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';
+                const paymentText = item.payment_type === 'withBook' ? 'Dgn Buku' : 'Tnp Buku';
+                const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';
+                const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');
+                
+                // Format birth date
+                let birthDateText = '-';
+                if (item.birth_date) {
+                    const date = new Date(item.birth_date);
+                    birthDateText = `${item.birth_place || '-'}, ${date.toLocaleDateString('id-ID')}`;
+                }
+                
+                // Create WhatsApp link if phone number exists
+                let waNumber = '-';
+                if (item.wa_number) {
+                    // Format the phone number: convert 08123456789 to 628123456789
+                    let formattedNumber = item.wa_number;
+                    if (formattedNumber.startsWith('0')) {
+                        formattedNumber = '62' + formattedNumber.substring(1);
+                    }
+                    // Create WhatsApp link
+                    waNumber = `<a href="https://wa.me/${formattedNumber}?text=Assalamu'alaikum, saya dari KPA Tilawati Kotabaru" target="_blank" class="wa-link">${item.wa_number}</a>`;
+                }
+                
+                // Create proof button if transfer proof exists
+                let proofButton = '-';
+                if (item.transfer_proof_url) {
+                    proofButton = `<button onclick="viewImage('${item.transfer_proof_url}')" class="text-blue-600 hover:text-blue-800">
+                        <i class="material-icons text-xs">visibility</i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap text-center">
+                        <div class="text-xs-mobile font-medium text-gray-900">${startIndex + index + 1}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile font-medium text-gray-900">${item.full_name || '-'}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${birthDateText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${genderText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${waNumber}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${item.address_line || '-'}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${item.village || '-'}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${item.district || '-'}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${item.organization || '-'}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${levelText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${syahadahText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${paymentText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${paymentMethodText}</div>
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap text-center">
+                        ${proofButton}
+                    </td>
+                    <td class="px-1 md:px-4 py-1 whitespace-nowrap">
+                        <div class="text-xs-mobile text-gray-500">${createdDate}</div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination info
+            document.getElementById('showingCount').textContent = paginatedData.length;
+            document.getElementById('totalCount').textContent = filteredData.length;
+            
+            // Update pagination buttons
+            document.getElementById('prevButton').disabled = currentPage === 1;
+            document.getElementById('nextButton').disabled = endIndex >= filteredData.length;
+        }
+
+        // View image in modal
+        function viewImage(imageUrl) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            
+            modal.style.display = "block";
+            modalImg.src = imageUrl;
+        }
+
+        // Apply filters automatically when selection changes
+        function applyFilters() {
+            const levelFilter = document.getElementById('levelFilter').value;
+            const secondFilter = document.getElementById('secondFilter').value;
+            
+            filteredData = registrationsData.filter(item => {
+                const levelMatch = !levelFilter || item.level === levelFilter;
+                
+                let secondMatch = true;
+                if (levelFilter === 'level2') {
+                    // For level 2, filter by syahadah status
+                    secondMatch = !secondFilter || 
+                        (secondFilter === 'has_syahadah' && item.syahadah_status === 'has_syahadah') ||
+                        (secondFilter === 'no_syahadah' && (item.syahadah_status === 'no_syahadah' || !item.syahadah_status || item.syahadah_status === ''));
+                } else {
+                    // For other levels, filter by payment type
+                    secondMatch = !secondFilter || item.payment_type === secondFilter;
+                }
+                
+                return levelMatch && secondMatch;
+            });
+            
+            currentPage = 1;
+            updateDashboard();
+            updateParticipantsTable();
+        }
+
+        // Search participants
+        function searchParticipants() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            
+            // Only search if term has at least 3 characters
+            if (searchTerm.length >= 3) {
+                // First apply any existing filters
+                applyFilters();
+                
+                // Then apply search filter
+                filteredData = filteredData.filter(item => {
+                    return item.full_name && item.full_name.toLowerCase().includes(searchTerm.toLowerCase());
+                });
+                
+                currentPage = 1;
+                updateDashboard();
+                updateParticipantsTable();
+            } else if (searchTerm.length === 0) {
+                // If search is empty, just apply existing filters
+                applyFilters();
+            }
+        }
+
+        // Reset filters
+        function resetFilters() {
+            // Reset filter selects
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('secondFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            // Update second filter options
+            updateSecondFilter();
+            
+            // Reset filtered data to all data
+            filteredData = [...registrationsData];
+            
+            // Reset pagination
+            currentPage = 1;
+            
+            // Update dashboard and table
+            updateDashboard();
+            updateParticipantsTable();
+        }
+
+        // Download data as Excel
+        function downloadExcel() {
+            // Sort data by level first, then by name
+            const sortedData = [...registrationsData].sort((a, b) => {
+                // First sort by level (level1 comes before level2)
+                if (a.level !== b.level) {
+                    return a.level === 'level1' ? -1 : 1;
+                }
+                
+                // Then sort by name
+                return a.full_name.localeCompare(b.full_name, 'id-ID');
+            });
+            
+            // Prepare data for Excel
+            const excelData = sortedData.map((item, index) => {
+                const levelText = item.level === 'level1' ? 'Level 1' : 'Level 2';
+                const genderText = item.gender === 'male' ? 'Laki-laki' : 'Perempuan';
+                const syahadahText = item.syahadah_status === 'has_syahadah' ? 'Sudah' : 'Belum';
+                const paymentText = item.payment_type === 'withBook' ? 'Dengan Buku' : 'Tanpa Buku';
+                const paymentMethodText = item.payment_method === 'transfer' ? 'Transfer' : 'Tunai';
+                const createdDate = new Date(item.created_at).toLocaleDateString('id-ID');
+                
+                // Format birth date
+                let birthDateText = '-';
+                if (item.birth_date) {
+                    const date = new Date(item.birth_date);
+                    birthDateText = `${item.birth_place || '-'}, ${date.toLocaleDateString('id-ID')}`;
+                }
+                
+                return {
+                    'No': index + 1,
+                    'Nama Lengkap': item.full_name || '-',
+                    'Tempat Lahir': item.birth_place || '-',
+                    'Tanggal Lahir': item.birth_date ? new Date(item.birth_date).toLocaleDateString('id-ID') : '-',
+                    'Jenis Kelamin': genderText,
+                    'Nomor WhatsApp': item.wa_number || '-',
+                    'Alamat Lengkap': item.address_line || '-',
+                    'Desa/Kelurahan': item.village || '-',
+                    'Kecamatan': item.district || '-',
+                    'Asal Lembaga/TPQ/Mandiri': item.organization || '-',
+                    'Level Diklat': levelText,
+                    'Status Syahadah': syahadahText,
+                    'Jenis Pembayaran': paymentText,
+                    'Metode Pembayaran': paymentMethodText,
+                    'Tanggal Daftar': createdDate
+                };
+            });
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Data Peserta");
+            
+            // Generate Excel file and download
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('id-ID').replace(/\//g, '-');
+            const fileName = `Data_Peserta_Diklat_Tilawati_${dateStr}.xlsx`;
+            
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // Pagination functions
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateParticipantsTable();
+            }
+        }
+
+        function nextPage() {
+            const maxPage = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < maxPage) {
+                currentPage++;
+                updateParticipantsTable();
+            }
+        }
+
+        // Update last updated time
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('lastUpdated').textContent = timeString;
+        }
+
+        // Show/hide loading overlay
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            // In a real app, you would show a toast or alert
+            alert(message);
+        }
+    </script>
+</body>
+</html>
