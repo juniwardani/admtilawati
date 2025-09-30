@@ -491,7 +491,7 @@
                 <h3 class="text-xs md:text-lg font-bold text-gray-800">Data Peserta</h3>
                 <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1 w-full md:w-auto">
                     <select id="levelFilter" class="filter-select w-full md:w-auto" onchange="updateSecondFilter()">
-                        <option value="">Semua Level</option>
+                        <option value="" selected>Semua Level</option>
                         <option value="level1">Level 1</option>
                         <option value="level2">Level 2</option>
                     </select>
@@ -646,6 +646,10 @@
                 withoutBookOption.textContent = 'Belum Memiliki Buku';
                 secondFilter.appendChild(withoutBookOption);
             }
+
+            // Reset secondary filter to default and apply filters immediately
+            secondFilter.value = '';
+            applyFilters();
         }
 
         // Load data from Supabase
@@ -725,7 +729,7 @@
             charts.gender = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['L', 'P'],
+                    labels: [`L (${maleCount})`, `P (${femaleCount})`],
                     datasets: [{
                         data: [maleCount, femaleCount],
                         backgroundColor: ['#3b82f6', '#ec4899'],
@@ -761,7 +765,7 @@
             charts.level = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Lv1', 'Lv2'],
+                    labels: [`Lv1 (${level1Count})`, `Lv2 (${level2Count})`],
                     datasets: [{
                         data: [level1Count, level2Count],
                         backgroundColor: ['#8b5cf6', '#f59e0b'],
@@ -797,7 +801,7 @@
             charts.paymentType = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Buku', 'Belum Memiliki Buku'],
+                    labels: [`Buku (${withBookCount})`, `Belum Memiliki Buku (${withoutBookCount})`],
                     datasets: [{
                         data: [withBookCount, withoutBookCount],
                         backgroundColor: ['#10b981', '#ef4444'],
@@ -833,7 +837,7 @@
             charts.syahadahLevel2 = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Sdh', 'Blm'],
+                    labels: [`Sdh (${hasSyahadahCount})`, `Blm (${noSyahadahCount})`],
                     datasets: [{
                         data: [hasSyahadahCount, noSyahadahCount],
                         backgroundColor: ['#22c55e', '#f87171'],
