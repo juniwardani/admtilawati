@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="id" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penilaian Supervisi Tilawati</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <!-- jsPDF (Tanpa html2canvas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .app-wrapper {
+            height: 100%;
+            overflow: auto;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .app-wrapper {
+                height: auto;
+                overflow: visible;
+            }
+
+            .print-break {
+                page-break-inside: avoid;
+            }
+
+            .result-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+
+        /* Menghilangkan spinner default input number */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .score-input {
+            width: 52px;
+            text-align: center;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            /* Transisi lebih halus untuk perubahan warna */
+            background-color: #fff;
+            color: #000;
+        }
+
+        .score-input:hover {
+            border-color: #0d9488;
+            background-color: #f0fdfa;
+        }
+
+        .score-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .sub-header {
+            background: #f0fdfa;
+            border-left: 4px solid #0d9488;
+            padding: 8px 14px;
+            font-weight: 600;
+            color: #0f766e;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+        }
+
+        .sum-row {
+            background: linear-gradient(90deg, #f0fdfa, #ccfbf1);
+            font-weight: 700;
+            color: #0f766e;
+            border-radius: 8px;
+            padding: 8px 14px;
+        }
+
+        .item-row {
+            padding: 6px 14px 6px 28px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.15s;
+        }
+
+        .item-row:hover {
+            background: #f9fafb;
+        }
+
+        .info-input {
+            border: none;
+            border-bottom: 2px dotted #99f6e4;
+            background: transparent;
+            padding: 4px 2px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .info-input:focus {
+            border-bottom-color: #0d9488;
+        }
+
+        textarea.notes-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 100%;
+            resize: vertical;
+            min-height: 60px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+
+        textarea.notes-input:focus {
+            border-color: #0d9488;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            border-radius: 16px;
+            color: white;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.3);
+        }
+
+        .scale-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #0f766e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Score Modal Specifics */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .score-btn {
+            aspect-ratio: 1;
+            border-radius: 14px;
+            border: none;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .score-btn:active {
+            transform: scale(0.90);
+        }
+
+        .score-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Color Variants (Sama dengan di Modal) */
+        .btn-0 {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .btn-1 {
+            background: #ef4444;
+        }
+
+        .btn-2 {
+            background: #f97316;
+        }
+
+        .btn-3 {
+            background: #eab308;
+        }
+
+        .btn-4 {
+            background: #22c55e;
+        }
+
+        .btn-5 {
+            background: #0d9488;
+        }
+
+        /* Validation Modal Specifics */
+        .error-list-container {
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 16px 0;
+        }
+
+        .error-item {
+            color: #991b1b;
+            font-size: 13px;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #fecaca;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .error-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .error-item::before {
+            content: "•";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50">
+    <div class="app-wrapper w-full" id="appWrapper" style="background:#f8fffe;">
+        <div class="max-w-4xl mx-auto px-4 py-6 sm:px-6"><!-- Header -->
+            <div class="text-center mb-6 fade-in print-break">
+                <div
+                    class="inline-flex items-center gap-2 bg-teal-700 text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase mb-3">
+                    <i data-lucide="book-open" style="width:16px;height:16px;"></i> KPA Tilawati - Kotabaru
+                </div>
+                <h1 id="formTitle" class="text-xl sm:text-2xl font-extrabold text-teal-800 leading-tight">PENILAIAN
+                    SUPERVISI PEMBELAJARAN AL QUR'AN</h1>
+                <p class="text-teal-600 font-semibold text-sm mt-1 mb-2">METODE TILAWATI — TINGKAT DASAR</p>
+            </div><!-- Info Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break"
+                style="animation-delay:0.1s;">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Lembaga</label><input
+                            type="text" class="info-input" id="lembagaDisplay" placeholder="..."
+                            oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Hari, Tanggal</label> <span
+                            class="text-sm text-gray-700 font-semibold w-20" id="infoHari">-</span> <input type="date"
+                            class="info-input" id="infoTanggal" style="width:140px;"
+                            onchange="updateHari(); updateSignPlace(); saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Jenjang</label><input
+                            type="text" class="info-input" id="infoJenjang" placeholder="..."
+                            oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Pukul/Jam ke</label> <input
+                            type="text" id="infoPukulDisplay" class="info-input" readonly
+                            style="width:70px;cursor:pointer;" placeholder="--:--" onclick="openTimeModal()"> <select
+                            class="info-input" id="infoJamKe"
+                            style="border:none;border-bottom:2px dotted #99f6e4;background:transparent;padding:4px 2px;font-size:14px;outline:none;cursor:pointer;width:70px;margin-left:8px;"
+                            onchange="saveToStorage();">
+                            <option value="">--</option>
+                            <option value="1">Jam ke-1</option>
+                            <option value="2">Jam ke-2</option>
+                            <option value="3">Jam ke-3</option>
+                            <option value="4">Jam ke-4</option>
+                            <option value="5">Jam ke-5</option>
+                            <option value="6">Jam ke-6</option>
+                            <option value="7">Jam ke-7</option>
+                            <option value="8">Jam ke-8</option>
+                            <option value="9">Jam ke-9</option>
+                            <option value="10">Jam ke-10</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Nama Guru</label><input
+                            type="text" class="info-input" id="infoGuru" placeholder="..."
+                            oninput="syncObsName(); saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Kelompok</label><input
+                            type="text" class="info-input" id="infoKelompok" placeholder="..."
+                            oninput="saveToStorage();">
+                    </div>
+                </div>
+            </div><!-- Assessment Form -->
+            <div id="assessmentForm" class="space-y-4 mb-5"></div><!-- Catatan Umum -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
+                <div class="section-header mb-3 flex items-center gap-2">
+                    <i data-lucide="clipboard" style="width:16px;height:16px;"></i> CATATAN UMUM
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">1. Sekarang pertemuan
+                            ke</span><input type="text" class="info-input" id="notePertemuan" style="max-width:120px;"
+                            placeholder="..." oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">2. Jilid / Halaman</span><input
+                            type="text" class="info-input" id="noteJilid" style="max-width:200px;"
+                            placeholder="Jilid ... hal ..." oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">3. Jumlah santri</span><input
+                            type="text" class="info-input" id="noteJumlah" style="max-width:120px;" placeholder="..."
+                            oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">4. Prosentase (%) kualitas
+                            santri</span><input type="text" class="info-input" id="notePersen" style="max-width:120px;"
+                            placeholder="...%" oninput="saveToStorage();">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">5. Rencana Pengajaran</span>
+                        <span class="text-sm font-semibold text-teal-700">diminta Supervisor</span>
+                    </div>
+                </div>
+            </div><!-- Result -->
+            <div id="resultSection" class="mb-5 fade-in print-break">
+                <div class="result-card">
+                    <div class="grid grid-cols-3 gap-2 items-center text-center">
+                        <div>
+                            <p class="text-teal-100 text-xs font-semibold uppercase tracking-tight mb-0.5">Total Skor
+                            </p>
+                            <p class="text-2xl font-extrabold" id="totalScoreDisplay">0</p>
+                            <p class="text-teal-200 text-xs mt-0.5">/ 195</p>
+                        </div>
+                        <div class="border-l border-r border-white/30 px-2">
+                            <p class="text-teal-100 text-xs font-semibold uppercase tracking-tight mb-0.5">Nilai Akhir
+                            </p>
+                            <p class="text-2xl font-extrabold" id="finalValueDisplay">0.00</p>
+                        </div>
+                        <div>
+                            <p class="text-teal-100 text-xs font-semibold uppercase tracking-tight mb-1">Kategori</p>
+                            <div id="gradeLabel" class="scale-badge bg-white/20 text-xs">
+                                -
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 bg-white/10 rounded-lg p-2">
+                        <div class="flex items-center justify-between text-xs text-teal-100 mb-1">
+                            <span>Progress</span><span id="progressPct">0%</span>
+                        </div>
+                        <div class="w-full bg-white/20 rounded-full h-2">
+                            <div id="progressBar" class="bg-white rounded-full h-2 transition-all duration-500"
+                                style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Skala Nilai Reference -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
+                <p class="font-bold text-sm text-gray-700 mb-3">Skala Nilai</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div class="rounded-lg p-3 flex items-center gap-2" style="background:#fef2f2;color:#991b1b;">
+                        <strong class="text-base">1</strong><span>20–39 • Sangat kurang mampu</span>
+                    </div>
+                    <div class="rounded-lg p-3 flex items-center gap-2" style="background:#fff7ed;color:#9a3412;">
+                        <strong class="text-base">2</strong><span>40–59 • Kurang mampu</span>
+                    </div>
+                    <div class="rounded-lg p-3 flex items-center gap-2" style="background:#fefce8;color:#854d0e;">
+                        <strong class="text-base">3</strong><span>60–79 • Cukup mampu</span>
+                    </div>
+                    <div class="rounded-lg p-3 flex items-center gap-2" style="background:#f0fdf4;color:#166534;">
+                        <strong class="text-base">4</strong><span>80–95 • Mampu</span>
+                    </div>
+                    <div class="rounded-lg p-3 flex items-center gap-2" style="background:#f0fdfa;color:#0f766e;">
+                        <strong class="text-base">5</strong><span>95–100 • Sangat mampu</span>
+                    </div>
+                </div>
+            </div><!-- Hasil Observasi -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
+                <div class="section-header mb-3 flex items-center gap-2">
+                    <i data-lucide="user-check" style="width:16px;height:16px;"></i> HASIL OBSERVASI
+                </div>
+                <div class="mb-3 flex items-center gap-2">
+                    <label class="text-xs font-semibold text-gray-500 shrink-0 w-20">NAMA</label><span
+                        class="text-sm font-semibold text-gray-700 flex-1" id="obsNameDisplay">-</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 border-b">
+                                <th class="py-2 pr-2 w-20">NILAI</th>
+                                <th class="py-2">DESKRIPSI DAN MASUKAN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-2 pr-2"><span id="obsNilai" class="font-bold text-teal-700">0.00</span>
+                                </td>
+                                <td class="py-2"><textarea class="notes-input" rows="2" id="obsDesc"
+                                        placeholder="Tergolong 'Sangat kurang mampu' mengajar menggunakan metode Tilawati"
+                                        style="border:none;box-shadow:none;padding:0;min-height:auto;resize:none;"
+                                        oninput="saveToStorage();"></textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3"><label class="text-xs font-semibold text-gray-500">Catatan Supervisor :</label>
+                    <textarea class="notes-input mt-1" rows="2" id="supervisorNotes"
+                        placeholder="- Sebaiknya perketat kriteria naik halaman..."
+                        oninput="saveToStorage();"></textarea>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-8">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 mb-2">Tempat &amp; Tanggal</p>
+                        <p class="text-sm font-semibold text-gray-700" id="signPlace">-</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-400 mb-16">Supervisor</p>
+                        <div class="border-t-2 border-gray-300 pt-1" style="min-width:140px;"></div><input type="text"
+                            class="info-input text-center font-semibold" id="signName" placeholder="( Nama Supervisor )"
+                            style="border:none;border-bottom:none;padding:0;background:transparent;margin-top:4px;"
+                            oninput="saveToStorage();">
+                    </div>
+                </div>
+            </div><!-- Actions -->
+            <div class="flex flex-wrap gap-3 justify-center mb-8 no-print"><button onclick="resetForm()"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-100 transition">
+                    <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Reset </button> <button
+                    onclick="exportPDF()"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 text-white font-semibold text-sm hover:bg-teal-800 transition shadow-lg shadow-teal-200">
+                    <i data-lucide="printer" style="width:16px;height:16px;"></i> Cetak / Print </button>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 1. Score Selection Modal -->
+    <div id="scoreModal" class="modal-overlay">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 class="text-gray-800 font-bold text-lg">Pilih Nilai</h3>
+            <p class="text-gray-500 text-xs mt-1">Klik angka untuk mengisi skor</p>
+
+            <div class="score-grid">
+                <button onclick="event.stopPropagation(); selectScore(0)" class="score-btn btn-0"
+                    title="Hapus / Kosongkan">0</button>
+                <button onclick="event.stopPropagation(); selectScore(1)" class="score-btn btn-1">1</button>
+                <button onclick="event.stopPropagation(); selectScore(2)" class="score-btn btn-2">2</button>
+                <button onclick="event.stopPropagation(); selectScore(3)" class="score-btn btn-3">3</button>
+                <button onclick="event.stopPropagation(); selectScore(4)" class="score-btn btn-4">4</button>
+                <button onclick="event.stopPropagation(); selectScore(5)" class="score-btn btn-5">5</button>
+            </div>
+
+            <button onclick="event.stopPropagation(); closeScoreModal()"
+                class="mt-5 text-gray-400 hover:text-gray-600 text-sm font-medium w-full py-2 rounded-lg hover:bg-gray-100 transition">Batal</button>
+        </div>
+    </div>
+
+    <!-- 2. Time Modal -->
+    <div id="timeModal"
+        style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;flex-items:center;justify-content:center;"
+        class="modal-overlay">
+        <div style="background:white;border-radius:16px;padding:32px;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"
+            onclick="event.stopPropagation()">
+            <h2 style="margin:0 0 20px 0;font-size:18px;font-weight:700;color:#0f766e;">Pilih Waktu</h2>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;">
+                <div style="flex:1;">
+                    <label
+                        style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;">Jam</label>
+                    <input type="number" id="modalHour" min="0" max="23" placeholder="00"
+                        style="width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;font-weight:600;text-align:center;">
+                </div><span style="font-size:24px;font-weight:700;color:#0f766e;">:</span>
+                <div style="flex:1;">
+                    <label
+                        style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;">Menit</label>
+                    <input type="number" id="modalMinute" min="0" max="59" placeholder="00"
+                        style="width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;font-weight:600;text-align:center;">
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button onclick="closeTimeModal()"
+                    style="flex:1;padding:10px;border:2px solid #d1d5db;background:transparent;color:#6b7280;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s;">Batal</button>
+                <button onclick="confirmTime()"
+                    style="flex:1;padding:10px;background:#0f766e;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s;">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Validation Modal -->
+    <div id="validationModal" class="modal-overlay">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="text-align:center; margin-bottom:16px;">
+                <i data-lucide="alert-circle" style="width:40px;height:40px;color:#ef4444;margin-bottom:8px;"></i>
+                <h2 class="text-gray-900 font-bold text-xl">Form Belum Lengkap</h2>
+                <p class="text-gray-500 text-sm">Mohon lengkapi bagian-bagian berikut sebelum mencetak PDF:</p>
+            </div>
+
+            <div id="validationErrorList" class="error-list-container">
+                <!-- List error akan diisi via JS -->
+            </div>
+
+            <button onclick="closeValidationModal()"
+                class="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-200">
+                Mengerti, Saya Lengkapi
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const MAX_SCORE = 195;
+        const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        // --- Helper: Warna Berdasarkan Nilai ---
+        function applyScoreStyle(input, val) {
+            const colors = {
+                0: { bg: '#ffffff', text: '#000000', border: '#d1d5db' }, // Putih (Default)
+                1: { bg: '#ef4444', text: '#ffffff', border: '#ef4444' }, // Merah
+                2: { bg: '#f97316', text: '#ffffff', border: '#f97316' }, // Oranye
+                3: { bg: '#eab308', text: '#000000', border: '#eab308' }, // Kuning
+                4: { bg: '#22c55e', text: '#ffffff', border: '#22c55e' }, // Hijau
+                5: { bg: '#0d9488', text: '#ffffff', border: '#0d9488' }  // Teal
+            };
+            const theme = colors[val] || colors[0];
+            input.style.backgroundColor = theme.bg;
+            input.style.color = theme.text;
+            input.style.borderColor = theme.border;
+        }
+
+        // --- LocalStorage Functions ---
+
+        function saveToStorage() {
+            const data = {
+                info: {
+                    jenjang: document.getElementById('infoJenjang').value,
+                    tanggal: document.getElementById('infoTanggal').value,
+                    guru: document.getElementById('infoGuru').value,
+                    pukul: document.getElementById('infoPukulDisplay').value,
+                    jamKe: document.getElementById('infoJamKe').value,
+                    kelompok: document.getElementById('infoKelompok').value,
+                    lembaga: document.getElementById('lembagaDisplay').value
+                },
+                notes: {
+                    pertemuan: document.getElementById('notePertemuan').value,
+                    jilid: document.getElementById('noteJilid').value,
+                    jumlah: document.getElementById('noteJumlah').value,
+                    persen: document.getElementById('notePersen').value
+                },
+                scores: scores,
+                sectionNotes: noteValues,
+                observation: {
+                    desc: document.getElementById('obsDesc').value,
+                    superNotes: document.getElementById('supervisorNotes').value,
+                    signName: document.getElementById('signName').value
+                }
+            };
+            localStorage.setItem('tilawati_supervisi_data', JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('tilawati_supervisi_data');
+            if (!saved) return;
+
+            try {
+                const data = JSON.parse(saved);
+
+                if (data.info) {
+                    document.getElementById('infoJenjang').value = data.info.jenjang || '';
+                    document.getElementById('infoTanggal').value = data.info.tanggal || '';
+                    document.getElementById('infoGuru').value = data.info.guru || '';
+                    document.getElementById('infoPukulDisplay').value = data.info.pukul || '';
+                    document.getElementById('infoJamKe').value = data.info.jamKe || '';
+                    document.getElementById('infoKelompok').value = data.info.kelompok || '';
+                    document.getElementById('lembagaDisplay').value = data.info.lembaga || '';
+                }
+
+                if (data.notes) {
+                    document.getElementById('notePertemuan').value = data.notes.pertemuan || '';
+                    document.getElementById('noteJilid').value = data.notes.jilid || '';
+                    document.getElementById('noteJumlah').value = data.notes.jumlah || '';
+                    document.getElementById('notePersen').value = data.notes.persen || '';
+                }
+
+                if (data.scores) {
+                    Object.keys(data.scores).forEach(key => {
+                        scores[key] = data.scores[key];
+                        const input = document.querySelector(`.score-input[data-key="${key}"]`);
+                        if (input) {
+                            const val = data.scores[key];
+                            if (val > 0) {
+                                input.value = val;
+                            } else {
+                                input.value = '';
+                            }
+                            // Terapkan warna saat load storage
+                            applyScoreStyle(input, val);
+                        }
+                    });
+                }
+
+                if (data.sectionNotes) {
+                    Object.keys(data.sectionNotes).forEach(key => {
+                        noteValues[key] = data.sectionNotes[key];
+                        const textarea = document.querySelector(`.notes-input[data-note="${key}"]`);
+                        if (textarea) textarea.value = data.sectionNotes[key];
+                    });
+                }
+
+                if (data.observation) {
+                    document.getElementById('obsDesc').value = data.observation.desc || '';
+                    document.getElementById('supervisorNotes').value = data.observation.superNotes || '';
+                    document.getElementById('signName').value = data.observation.signName || '';
+                }
+
+                updateHari();
+                updateSignPlace();
+                syncObsName();
+                recalculate();
+
+            } catch (e) {
+                console.error("Gagal memuat data tersimpan", e);
+            }
+        }
+
+        // --- Modal Logic ---
+
+        let activeScoreInput = null;
+
+        function openScoreModal(el) {
+            activeScoreInput = el;
+            const modal = document.getElementById('scoreModal');
+            modal.style.display = 'flex';
+            highlightCurrentScore();
+        }
+
+        function closeScoreModal() {
+            const modal = document.getElementById('scoreModal');
+            if (modal) modal.style.display = 'none';
+            if (activeScoreInput) activeScoreInput.blur();
+            activeScoreInput = null;
+        }
+
+        function selectScore(val) {
+            if (activeScoreInput) {
+                if (val === 0) {
+                    activeScoreInput.value = '';
+                } else {
+                    activeScoreInput.value = val;
+                }
+
+                // Terapkan Warna
+                applyScoreStyle(activeScoreInput, val);
+
+                updateScore(activeScoreInput);
+                closeScoreModal();
+            }
+        }
+
+        function highlightCurrentScore() {
+            document.querySelectorAll('.score-btn').forEach(btn => {
+                btn.style.opacity = '1';
+                btn.style.transform = 'scale(1)';
+                btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            });
+
+            if (activeScoreInput) {
+                const val = parseInt(activeScoreInput.value) || 0;
+                const btn = document.querySelector(`.score-btn[onclick*="selectScore(${val})"]`);
+                if (btn) {
+                    btn.style.opacity = '0.8';
+                    btn.style.transform = 'scale(0.95)';
+                    btn.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)';
+                }
+            }
+        }
+
+        // Validation Modal Functions
+        function closeValidationModal() {
+            document.getElementById('validationModal').style.display = 'none';
+        }
+
+        // --- General Logic ---
+
+        function updateHari() {
+            const dateInput = document.getElementById('infoTanggal').value;
+            if (!dateInput) return;
+            const date = new Date(dateInput + 'T00:00:00');
+            const dayIndex = date.getDay();
+            document.getElementById('infoHari').textContent = HARI_NAMES[dayIndex];
+        }
+
+        function syncObsName() {
+            const val = document.getElementById('infoGuru').value;
+            document.getElementById('obsNameDisplay').textContent = val || '-';
+        }
+
+        function openTimeModal() {
+            const current = document.getElementById('infoPukulDisplay').value;
+            if (current) {
+                const [h, m] = current.split(':');
+                document.getElementById('modalHour').value = h;
+                document.getElementById('modalMinute').value = m;
+            } else {
+                document.getElementById('modalHour').value = '';
+                document.getElementById('modalMinute').value = '';
+            }
+            document.getElementById('timeModal').style.display = 'flex';
+        }
+
+        function closeTimeModal() {
+            document.getElementById('timeModal').style.display = 'none';
+        }
+
+        function confirmTime() {
+            const h = String(parseInt(document.getElementById('modalHour').value) || 0).padStart(2, '0');
+            const m = String(parseInt(document.getElementById('modalMinute').value) || 0).padStart(2, '0');
+
+            if (parseInt(h) > 23) { alert('Jam harus 0-23'); return; }
+            if (parseInt(m) > 59) { alert('Menit harus 0-59'); return; }
+
+            document.getElementById('infoPukulDisplay').value = `${h}:${m}`;
+            closeTimeModal();
+            saveToStorage();
+        }
+
+        document.getElementById('timeModal').addEventListener('click', (e) => {
+            if (e.target.id === 'timeModal') closeTimeModal();
+        });
+
+        document.getElementById('scoreModal').addEventListener('click', (e) => {
+            if (e.target.id === 'scoreModal') closeScoreModal();
+        });
+
+        document.getElementById('validationModal').addEventListener('click', (e) => {
+            if (e.target.id === 'validationModal') closeValidationModal();
+        });
+
+        function initializeDateToday() {
+            if (!document.getElementById('infoTanggal').value) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                document.getElementById('infoTanggal').value = `${year}-${month}-${day}`;
+                updateHari();
+                updateSignPlace();
+                saveToStorage();
+            } else {
+                updateHari();
+                updateSignPlace();
+            }
+        }
+
+        function updateSignPlace() {
+            const dateInput = document.getElementById('infoTanggal').value;
+            if (!dateInput) return;
+            const date = new Date(dateInput + 'T00:00:00');
+            const day = String(date.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const monthName = monthNames[date.getMonth()];
+            document.getElementById('signPlace').textContent = `Kotabaru, ${day} ${monthName} ${year}`;
+        }
+
+        const SECTIONS = [
+            {
+                id: 1, title: "PERSIAPAN TERTULIS",
+                items: ["Form Program pembelajaran", "Kebenaran pengisian program"]
+            },
+            {
+                id: 2, title: "PERSIAPAN KELAS & DO'A",
+                items: ["Masuk tepat waktu", "Duduk santri berbentuk U", "Guru memimpin do'a", "Santri sudah siap diajak berdo'a", "Santri konsentrasi dalam berdo'a", "Rasio guru dengan santri ideal (maks. 15 santri)"]
+            },
+            {
+                id: "3", title: "PENGAJARAN & PENGELOLAAN KELAS",
+                subs: [
+                    {
+                        id: "3.1", title: "Peraga",
+                        items: ["Guru menjelaskan pokok bahasan secara sederhana", "Guru membaca klasikal sesuai tekniknya", "Guru ikut baca saat klasikal T. 2 atau 3", "Guru selalu mengawasi santri", "Guru tepat dalam menunjuk peraga", "Saat baca peraga santri tidak pegang buku", "Peraga tidak digunakan baca simak"]
+                    },
+                    {
+                        id: "3.2", title: "Buku",
+                        items: ["Guru menjelaskan pokok bahasan", "Guru membaca klasikal T. 2", "Guru ikut baca saat klasikal T. 2", "Guru selalu mengawasi santri", "Santri bergiliran baca dan kebenaran putaran", "Kondisi santri tetap terkendali (tertib)", "Guru dan santri membaca T. 3"]
+                    }
+                ]
+            },
+            {
+                id: 4, title: "SARANA BELAJAR",
+                items: ["Meja belajar", "Peraga beserta penunjuk dan tiangnya", "Buku pegangan santri"]
+            },
+            {
+                id: 5, title: "PENAMPILAN GURU (PERFORMANCE)",
+                items: ["Guru berwibawa dihadapan santri", "Bersemangat saat mengajar", "Percaya diri saat mengajar", "Pengendalian diri saat mengajar", "Pengaturan siswa", "Penggunaan sumber belajar", "Wawasan keilmuan", "Penguasaan terhadap materi ajar", "Gaya penyajian materi", "Intonasi suara (kualitas suara)", "Kedisiplinan dalam mengajar", "Pemberian reward kepada siswa", "Pemberian motivasi siswa", "Kerapian pakaian"]
+            }
+        ];
+
+        const scores = {};
+        let noteValues = {};
+
+        function buildForm() {
+            const container = document.getElementById('assessmentForm');
+            container.innerHTML = '';
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+
+            SECTIONS.forEach(sec => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in print-break';
+
+                let html = `<div class="section-header flex items-center gap-2"><span>${sec.id}.</span> ${sec.title}</div>`;
+
+                if (sec.items) {
+                    sec.items.forEach((item, i) => {
+                        const key = `s${sec.id}_${i}`;
+                        const noteKey = `note_s${sec.id}_${i}`;
+                        scores[key] = 0;
+                        html += `<div class="item-row flex items-center gap-2 pb-1">
+          <span class="text-xs text-gray-500 w-5 shrink-0">${letters[i]}.</span>
+          <span class="text-sm text-gray-700 flex-1">${item}</span>
+          <input type="number" min="0" max="5" placeholder="0" class="score-input" data-key="${key}" readonly onclick="openScoreModal(this)">
+        </div>
+        <div class="px-7 pb-3">
+          <input type="text" placeholder="Catatan..." class="w-full text-xs text-gray-500 bg-transparent border-b border-gray-100 focus:border-teal-500 focus:outline-none py-1" data-note="${noteKey}" onchange="noteValues[this.dataset.note]=this.value; saveToStorage();">
+        </div>`;
+                    });
+                    html += `<div class="sum-row flex items-center justify-between"><span>Jumlah skor ${sec.id}</span><span id="sum_${sec.id}">0</span></div>`;
+                }
+
+                if (sec.subs) {
+                    sec.subs.forEach(sub => {
+                        html += `<div class="sub-header">${sub.id}. ${sub.title}</div>`;
+                        sub.items.forEach((item, i) => {
+                            const key = `s${sub.id}_${i}`;
+                            const noteKey = `note_s${sub.id}_${i}`;
+                            scores[key] = 0;
+                            html += `<div class="item-row flex items-center gap-2 pb-1">
+            <span class="text-xs text-gray-500 w-5 shrink-0">${letters[i]}.</span>
+            <span class="text-sm text-gray-700 flex-1">${item}</span>
+            <input type="number" min="0" max="5" placeholder="0" class="score-input" data-key="${key}" readonly onclick="openScoreModal(this)">
+          </div>
+          <div class="px-12 pb-3">
+            <input type="text" placeholder="Catatan..." class="w-full text-xs text-gray-500 bg-transparent border-b border-gray-100 focus:border-teal-500 focus:outline-none py-1" data-note="${noteKey}" onchange="noteValues[this.dataset.note]=this.value; saveToStorage();">
+          </div>`;
+                        });
+                        html += `<div class="sum-row flex items-center justify-between"><span>Jumlah skor ${sub.id}</span><span id="sum_${sub.id.replace('.', '_')}">0</span></div>`;
+                    });
+                    html += `<div class="sum-row flex items-center justify-between" style="background:linear-gradient(90deg,#ccfbf1,#99f6e4);"><span>Jumlah skor 3 (3.1 + 3.2)</span><span id="sum_3">0</span></div>`;
+                }
+
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        function updateScore(input) {
+            let v = parseInt(input.value) || 0;
+            if (v < 0) v = 0;
+            if (v > 5) v = 5;
+
+            if (v === 0) {
+                input.value = '';
+            }
+
+            scores[input.dataset.key] = v;
+            saveToStorage();
+            recalculate();
+        }
+
+        function recalculate() {
+            const sumByPrefix = (prefix) => {
+                let total = 0;
+                for (const k in scores) { if (k.startsWith(prefix)) total += scores[k]; }
+                return total;
+            };
+
+            const s1 = sumByPrefix('s1_'); setSum('sum_1', s1);
+            const s2 = sumByPrefix('s2_'); setSum('sum_2', s2);
+            const s31 = sumByPrefix('s3.1_'); setSum('sum_3_1', s31);
+            const s32 = sumByPrefix('s3.2_'); setSum('sum_3_2', s32);
+            const s3 = s31 + s32; setSum('sum_3', s3);
+            const s4 = sumByPrefix('s4_'); setSum('sum_4', s4);
+            const s5 = sumByPrefix('s5_'); setSum('sum_5', s5);
+
+            const total = s1 + s2 + s3 + s4 + s5;
+            const nilai = (total / MAX_SCORE) * 100;
+
+            document.getElementById('totalScoreDisplay').textContent = total;
+            document.getElementById('finalValueDisplay').textContent = nilai.toFixed(2);
+            document.getElementById('progressPct').textContent = nilai.toFixed(1) + '%';
+            document.getElementById('progressBar').style.width = Math.min(nilai, 100) + '%';
+
+            const grade = getGrade(nilai);
+            const gl = document.getElementById('gradeLabel');
+            gl.textContent = grade.label;
+            gl.style.background = grade.bg;
+            gl.style.color = grade.color;
+
+            document.getElementById('obsNilai').textContent = nilai.toFixed(2);
+            const deskripsi = `Tergolong "${grade.label}" mengajar menggunakan metode Tilawati`;
+            if (!document.getElementById('obsDesc').value) {
+                document.getElementById('obsDesc').placeholder = deskripsi;
+            }
+        }
+
+        function setSum(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
+        function getGrade(nilai) {
+            if (nilai >= 95) return { label: 'Sangat mampu', bg: '#ccfbf1', color: '#0f766e' };
+            if (nilai >= 80) return { label: 'Mampu', bg: '#d1fae5', color: '#166534' };
+            if (nilai >= 60) return { label: 'Cukup mampu', bg: '#fef9c3', color: '#854d0e' };
+            if (nilai >= 40) return { label: 'Kurang mampu', bg: '#ffedd5', color: '#9a3412' };
+            return { label: 'Sangat kurang mampu', bg: '#fee2e2', color: '#991b1b' };
+        }
+
+        function resetForm() {
+            const btn = event.target.closest('button');
+            if (!btn.dataset.confirming) {
+                btn.dataset.confirming = 'true';
+                btn.innerHTML = '<i data-lucide="alert-triangle" style="width:16px;height:16px;"></i> Yakin Reset?';
+                btn.classList.add('border-red-300', 'text-red-600');
+                lucide.createIcons();
+                setTimeout(() => {
+                    if (btn.dataset.confirming) {
+                        delete btn.dataset.confirming;
+                        btn.innerHTML = '<i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Reset';
+                        btn.classList.remove('border-red-300', 'text-red-600');
+                        lucide.createIcons();
+                    }
+                }, 3000);
+                return;
+            }
+
+            delete btn.dataset.confirming;
+            btn.innerHTML = '<i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Reset';
+            btn.classList.remove('border-red-300', 'text-red-600');
+
+            for (const k in scores) scores[k] = 0;
+            noteValues = {};
+
+            document.querySelectorAll('.score-input').forEach(el => {
+                el.value = '';
+                // Reset Warna ke Default
+                applyScoreStyle(el, 0);
+            });
+
+            document.querySelectorAll('.info-input').forEach(el => el.value = '');
+            document.querySelectorAll('.notes-input').forEach(el => el.value = '');
+
+            initializeDateToday();
+            localStorage.removeItem('tilawati_supervisi_data');
+
+            recalculate();
+            showToast('Form & Data Tersimpan Dihapus');
+            lucide.createIcons();
+        }
+
+        function showToast(msg) {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // --- Validation Logic ---
+
+        function validateForm() {
+            const errors = [];
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+
+            // 1. Validasi Info Dasar (Kecuali Catatan)
+            const guru = document.getElementById('infoGuru').value.trim();
+            const kelompok = document.getElementById('infoKelompok').value.trim();
+            const jamKe = document.getElementById('infoJamKe').value.trim();
+
+            if (!guru) errors.push("Nama Guru belum diisi");
+            if (!kelompok) errors.push("Kelompok belum diisi");
+            if (!jamKe) errors.push("Jam ke belum dipilih");
+
+            // 2. Validasi Skor (Semua item harus diisi > 0)
+            SECTIONS.forEach(sec => {
+                const checkItems = (items, prefix, title) => {
+                    items.forEach((itemText, i) => {
+                        const key = `s${prefix}_${i}`;
+                        const val = scores[key] || 0;
+                        if (val === 0) {
+                            const letter = letters[i] || '';
+                            errors.push(`<b>${title}</b>: ${letter}. ${itemText}`);
+                        }
+                    });
+                };
+
+                if (sec.items) {
+                    checkItems(sec.items, sec.id, sec.title);
+                }
+                if (sec.subs) {
+                    sec.subs.forEach(sub => {
+                        checkItems(sub.items, sub.id, sub.title);
+                    });
+                }
+            });
+
+            return errors;
+        }
+
+        // --- PDF Generation (Murni jsPDF) ---
+
+        async function exportPDF() {
+            // 1. Panggil Validasi
+            const validationErrors = validateForm();
+
+            // 2. Jika ada error, tampilkan modal dan hentikan proses cetak
+            if (validationErrors.length > 0) {
+                const modal = document.getElementById('validationModal');
+                const listContainer = document.getElementById('validationErrorList');
+
+                listContainer.innerHTML = validationErrors
+                    .map(err => `<div class="error-item">${err}</div>`)
+                    .join('');
+
+                modal.style.display = 'flex';
+                return; // Hentikan eksekusi di sini
+            }
+
+            // 3. Jika lolos validasi, lanjut cetak PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'p',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const marginX = 15;
+            let currentY = 15;
+
+            const lembaga = document.getElementById('lembagaDisplay').value || '.................................................';
+            const jenjang = document.getElementById('infoJenjang').value || '.........................';
+            const guru = document.getElementById('infoGuru').value || '.........................';
+            const kelompok = document.getElementById('infoKelompok').value || '.........................';
+            
+            const hariVal = document.getElementById('infoHari').textContent || '-';
+            const tglVal = document.getElementById('infoTanggal').value || '.........................';
+            const hariTanggal = `${hariVal}, ${tglVal}`;
+            
+            const pukulVal = document.getElementById('infoPukulDisplay').value || '--:--';
+            const jamKeVal = document.getElementById('infoJamKe').value || '--';
+            const jamKe = `${pukulVal} (Jam ke-${jamKeVal})`;
+
+            // --- PAGE 1: HEADER ---
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.setTextColor(15, 118, 110); // Match index.html teal theme
+            doc.text("PENILAIAN SUPERVISI PEMBELAJARAN AL QURAN METODE TILAWATI", 105, currentY, { align: "center" });
+            currentY += 5;
+            doc.text("TINGKAT DASAR (TILAWATI)", 105, currentY, { align: "center" });
+            currentY += 5;
+            doc.text("LEMBAGA PENDIDIKAN : " + lembaga.toUpperCase(), 105, currentY, { align: "center" });
+
+            currentY += 10;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(50, 50, 50);
+
+            // LEFT HEADER INFO
+            doc.text("Jenjang", marginX, currentY); doc.text(": " + jenjang, marginX + 25, currentY);
+            doc.text("Nama Guru", marginX, currentY + 6); doc.text(": " + guru, marginX + 25, currentY + 6);
+            doc.text("Kelompok", marginX, currentY + 12); doc.text(": " + kelompok, marginX + 25, currentY + 12);
+
+            // RIGHT HEADER INFO
+            doc.text("Hari, Tanggal", 115, currentY); doc.text(": " + hariTanggal, 145, currentY);
+            doc.text("Pukul/Jam ke", 115, currentY + 6); doc.text(": " + jamKe, 145, currentY + 6);
+
+            currentY += 18;
+
+            const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+            const finalVal = ((totalScore / MAX_SCORE) * 100).toFixed(2);
+            const gradeData = getGrade(parseFloat(finalVal));
+
+            // --- TABLE DATA PAGE 1 ---
+            const tableData1 = [
+                [{ content: '1', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PERSIAPAN TERTULIS', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Form Program pembelajaran', String(scores['s1_0'] || 0), noteValues['note_s1_0'] || ''],
+                ['', 'b. Kebenaran pengisian program', String(scores['s1_1'] || 0), noteValues['note_s1_1'] || ''],
+                ['', { content: 'Jumlah skor 1', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s1_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                [{ content: '2', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PERSIAPAN KELAS & DO`A', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Masuk tepat waktu', String(scores['s2_0'] || 0), noteValues['note_s2_0'] || ''],
+                ['', 'b. Duduk santri berbentuk U', String(scores['s2_1'] || 0), noteValues['note_s2_1'] || ''],
+                ['', 'c. Guru memimpin do`a', String(scores['s2_2'] || 0), noteValues['note_s2_2'] || ''],
+                ['', 'd. Santri sudah siap diajak berdo`a', String(scores['s2_3'] || 0), noteValues['note_s2_3'] || ''],
+                ['', 'e. Santri konsentrasi dalam berdo`a', String(scores['s2_4'] || 0), noteValues['note_s2_4'] || ''],
+                ['', 'f. Rasio guru dengan santri ideal (mak.15 santri)', String(scores['s2_5'] || 0), noteValues['note_s2_5'] || ''],
+                ['', { content: 'Jumlah skor 2', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s2_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                [{ content: '3', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PENGAJARAN & PENGELOLAN KELAS', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', { content: '3.1. Peraga', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru menjelaskan pokok bahasan sec.sederhana', String(scores['s3.1_0'] || 0), noteValues['note_s3.1_0'] || ''],
+                ['', 'b. Guru membaca klasikal sesuai tekniknya', String(scores['s3.1_1'] || 0), noteValues['note_s3.1_1'] || ''],
+                ['', 'c. Guru ikut baca saat klasikal T. 2 atau 3', String(scores['s3.1_2'] || 0), noteValues['note_s3.1_2'] || ''],
+                ['', 'd. Guru selalu mengawasi santri', String(scores['s3.1_3'] || 0), noteValues['note_s3.1_3'] || ''],
+                ['', 'e. Guru tepat dalam menunjuk peraga', String(scores['s3.1_4'] || 0), noteValues['note_s3.1_4'] || ''],
+                ['', 'f. Saat baca peraga santri tidak pegang buku', String(scores['s3.1_5'] || 0), noteValues['note_s3.1_5'] || ''],
+                ['', 'g. Peraga tidak digunakan baca simak', String(scores['s3.1_6'] || 0), noteValues['note_s3.1_6'] || ''],
+                ['', { content: 'Jumlah skor 3.1', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3.1_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                ['', { content: '3.2. Buku', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru menjelaskan pokok bahasan', String(scores['s3.2_0'] || 0), noteValues['note_s3.2_0'] || ''],
+                ['', 'b. Guru membaca klasikal T. 2', String(scores['s3.2_1'] || 0), noteValues['note_s3.2_1'] || ''],
+                ['', 'c. Guru ikut baca saat klasikal T. 2', String(scores['s3.2_2'] || 0), noteValues['note_s3.2_2'] || ''],
+                ['', 'd. Guru selalu mengawasi santri', String(scores['s3.2_3'] || 0), noteValues['note_s3.2_3'] || ''],
+                ['', 'e. Santri bergiliran baca dan kebenaran putaran', String(scores['s3.2_4'] || 0), noteValues['note_s3.2_4'] || ''],
+                ['', 'f. Kondisi santri tetap terkendali (tertib)', String(scores['s3.2_5'] || 0), noteValues['note_s3.2_5'] || ''],
+                ['', 'g. Guru dan santri membaca T. 3', String(scores['s3.2_6'] || 0), noteValues['note_s3.2_6'] || ''],
+                ['', { content: 'Jumlah skor 3.2', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3.2_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                [{ content: '4', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'SARANA BELAJAR', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Meja belajar', String(scores['s4_0'] || 0), noteValues['note_s4_0'] || ''],
+                ['', 'b. Peraga beserta penunjuk dan tiangnya', String(scores['s4_1'] || 0), noteValues['note_s4_1'] || ''],
+                ['', 'c. Buku pegangan santri', String(scores['s4_2'] || 0), noteValues['note_s4_2'] || ''],
+                ['', { content: 'Jumlah skor 4', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s4_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+            ];
+
+            doc.autoTable({
+                startY: currentY,
+                head: [["No", "Aspek Pengamatan", "Skor", "Catatan"]],
+                body: tableData1,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 0.8, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                columnStyles: {
+                    0: { cellWidth: 10 },
+                    1: { cellWidth: 80 },
+                    2: { cellWidth: 12, halign: 'center' },
+                    3: { cellWidth: 'auto' }
+                },
+                didParseCell: function (data) {
+                    if (data.row.section === 'body') {
+                        const rowData = data.row.raw;
+                        const firstCell = rowData[0];
+                        const secondCell = rowData[1];
+                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1','2','3','4','5'].includes(firstCell.content))
+                            || (firstCell && ['1','2','3','4','5'].includes(firstCell))
+                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga', '3.2. Buku'].includes(secondCell.content))
+                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga', '3.2. Buku'].includes(secondCell));
+                        const isTotalRow = (secondCell && typeof secondCell === 'object' && secondCell.content && (secondCell.content.startsWith('Jumlah skor') || secondCell.content.startsWith('Total skor')))
+                            || (secondCell && typeof secondCell === 'string' && (secondCell.startsWith('Jumlah skor') || secondCell.startsWith('Total skor')));
+                        if (isSectionTitle || isTotalRow) {
+                            data.cell.styles.fillColor = [220, 252, 231];
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                }
+            });
+
+            // --- PAGE 2 ---
+            doc.addPage();
+            currentY = 15;
+
+            const tableData2 = [
+                [{ content: '5', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PENAMPILAN GURU ( PERFORMANCE )', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru berwibawa dihadapan santri', String(scores['s5_0'] || 0), noteValues['note_s5_0'] || ''],
+                ['', 'b. Bersemangat saat mengajar', String(scores['s5_1'] || 0), noteValues['note_s5_1'] || ''],
+                ['', 'c. Percaya diri saat mengajar', String(scores['s5_2'] || 0), noteValues['note_s5_2'] || ''],
+                ['', 'd. Pengendalian diri saat mengajar', String(scores['s5_3'] || 0), noteValues['note_s5_3'] || ''],
+                ['', 'e. Pengaturan siswa', String(scores['s5_4'] || 0), noteValues['note_s5_4'] || ''],
+                ['', 'f. Penggunaan sumber belajar', String(scores['s5_5'] || 0), noteValues['note_s5_5'] || ''],
+                ['', 'g. Wawasan keilmuan', String(scores['s5_6'] || 0), noteValues['note_s5_6'] || ''],
+                ['', 'h. Penguasaan terhadap materi ajar', String(scores['s5_7'] || 0), noteValues['note_s5_7'] || ''],
+                ['', 'i. Gaya penyajian materi', String(scores['s5_8'] || 0), noteValues['note_s5_8'] || ''],
+                ['', 'j. Intonasi suara (kualitas suara)', String(scores['s5_9'] || 0), noteValues['note_s5_9'] || ''],
+                ['', 'k. Kedisiplinan dalam mengajar', String(scores['s5_10'] || 0), noteValues['note_s5_10'] || ''],
+                ['', 'l. Pemberian riward kepada siswa', String(scores['s5_11'] || 0), noteValues['note_s5_11'] || ''],
+                ['', 'm. Pemberian motivasi siswa', String(scores['s5_12'] || 0), noteValues['note_s5_12'] || ''],
+                ['', 'n. Kerapian pakaian', String(scores['s5_13'] || 0), noteValues['note_s5_13'] || ''],
+                ['', { content: 'Jumlah skor 5', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s5_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                ['', { content: 'Total skor 1+2+3+4+5', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(totalScore), styles: { halign: 'center', fontStyle: 'bold' } }, '']
+            ];
+
+            doc.autoTable({
+                startY: currentY,
+                head: [["No", "Aspek Pengamatan", "Skor", "Catatan"]],
+                body: tableData2,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 0.8, lineColor: [0, 0, 0] },
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                columnStyles: {
+                    0: { cellWidth: 10 },
+                    1: { cellWidth: 80 },
+                    2: { cellWidth: 12, halign: 'center' },
+                    3: { cellWidth: 'auto' }
+                },
+                didParseCell: function (data) {
+                    if (data.row.section === 'body') {
+                        const rowData = data.row.raw;
+                        const firstCell = rowData[0];
+                        const secondCell = rowData[1];
+                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1','2','3','4','5'].includes(firstCell.content))
+                            || (firstCell && ['1','2','3','4','5'].includes(firstCell))
+                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga', '3.2. Buku'].includes(secondCell.content))
+                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga', '3.2. Buku'].includes(secondCell));
+                        const isTotalRow = (secondCell && typeof secondCell === 'object' && secondCell.content && (secondCell.content.startsWith('Jumlah skor') || secondCell.content.startsWith('Total skor')))
+                            || (secondCell && typeof secondCell === 'string' && (secondCell.startsWith('Jumlah skor') || secondCell.startsWith('Total skor')));
+                        if (isSectionTitle || isTotalRow) {
+                            data.cell.styles.fillColor = [220, 252, 231];
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                }
+            });
+
+            currentY = doc.lastAutoTable.finalY + 8;
+
+            // FOOTER INFO (Catatan Umum)
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(15, 118, 110);
+            doc.text("Catatan Umum :", marginX, currentY);
+
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(50, 50, 50);
+            const alignX = marginX + 68;
+            const valueX = marginX + 71;
+
+            const pert = document.getElementById('notePertemuan').value || '...........';
+            const jil = document.getElementById('noteJilid').value || '.......';
+            const jmlS = document.getElementById('noteJumlah').value || '.......';
+            const persK = document.getElementById('notePersen').value || '.......';
+            const addN = 'diminta Supervisor';
+
+            doc.text("1. Sekarang pertemuan ke", marginX + 5, currentY + 5);
+            doc.text(":", alignX, currentY + 5);
+            doc.text(pert, valueX, currentY + 5);
+
+            doc.text("2. Jilid / Halaman", marginX + 5, currentY + 10);
+            doc.text(":", alignX, currentY + 10);
+            doc.text(jil, valueX, currentY + 10);
+
+            doc.text("3. Jumlah santri", marginX + 5, currentY + 15);
+            doc.text(":", alignX, currentY + 15);
+            doc.text(jmlS, valueX, currentY + 15);
+
+            doc.text("4. Prosentasi ( % ) kualitas santri", marginX + 5, currentY + 20);
+            doc.text(":", alignX, currentY + 20);
+            doc.text(persK + (persK !== '.......' ? " %" : ""), valueX, currentY + 20);
+
+            doc.text("5. Rencana Pengajaran", marginX + 5, currentY + 25);
+            doc.text(":", alignX, currentY + 25);
+            doc.text(addN, valueX, currentY + 25);
+
+            // SIGNATURE
+            const placeDate = document.getElementById('signPlace').textContent || 'Kotabaru, .........................';
+            const signName = document.getElementById('signName').value || '( Nama Supervisor )';
+
+            doc.text(placeDate, 150, currentY + 5);
+            doc.text("Supervisor", 150, currentY + 10);
+            doc.setFont("helvetica", "bold");
+            doc.text(signName, 150, currentY + 30);
+            doc.setFont("helvetica", "normal");
+
+            currentY += 38;
+
+            // KETERANGAN & SKALA
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(15, 118, 110);
+            doc.text("Keterangan :", marginX, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(50, 50, 50);
+            doc.text("1   Setiap aspek yang diamati diberi skor 1-5", marginX, currentY + 5);
+            doc.text("2   Nilai pengamatan diperoleh dengan rumus: Nilai = (Total skor / 195) x 100", marginX, currentY + 10);
+            doc.text(`3   Total skor = ${totalScore}  Nilai = ${totalScore} x 100 / 195 = ${finalVal}`, marginX, currentY + 15);
+
+            currentY += 23;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(15, 118, 110);
+            doc.text("4   Skala Nilai", marginX, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(50, 50, 50);
+            const skala = [
+                ["1", "=", "20 - 39", ": Sangat kurang mampu"],
+                ["2", "=", "40 - 59", ": Kurang mampu"],
+                ["3", "=", "60 - 79", ": Cukup mampu"],
+                ["4", "=", "80 - 95", ": Mampu"],
+                ["5", "=", "95 - 100", ": Sangat mampu"]
+            ];
+            skala.forEach((item, index) => {
+                doc.text(item[0], marginX + 5, currentY + 4 + (index * 4));
+                doc.text(item[1], marginX + 15, currentY + 4 + (index * 4));
+                doc.text(item[2], marginX + 20, currentY + 4 + (index * 4));
+                doc.text(item[3], marginX + 40, currentY + 4 + (index * 4));
+            });
+
+            currentY += 28;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(15, 118, 110);
+            doc.text("5   Hasil Observasi", marginX, currentY);
+            
+            const obsDesc = document.getElementById('obsDesc').value || `Tergolong "${gradeData.label}" mengajar menggunakan\nmetode Tilawati`;
+            const supNotes = document.getElementById('supervisorNotes').value || '-';
+            const feedbackText = obsDesc + `\n\nCatatan:\n- ${supNotes}`;
+
+            doc.autoTable({
+                startY: currentY + 2,
+                head: [["NAMA", "NILAI", "DESKRIPSI DAN MASUKAN"]],
+                body: [[guru, finalVal, feedbackText]],
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 1.5, lineColor: [0, 0, 0] },
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                columnStyles: {
+                    0: { cellWidth: 80, halign: 'center', valign: 'middle', fontStyle: 'bold' },
+                    1: { cellWidth: 20, halign: 'center', valign: 'middle' },
+                    2: { cellWidth: 80 }
+                }
+            });
+
+            doc.save('Penilaian_Supervisi_Tilawati.pdf');
+            showToast('PDF berhasil dibuat (100% Presisi)');
+        }
+
+        function sumByPrefix(prefix) {
+            let total = 0;
+            for (const k in scores) { if (k.startsWith(prefix)) total += scores[k]; }
+            return total;
+        }
+
+        // Init
+        buildForm();
+        window.onload = function () {
+            initializeDateToday();
+            loadFromStorage();
+            lucide.createIcons();
+        };
+    </script>
+
+</html>
