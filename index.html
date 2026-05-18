@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Supervisi - KPA Tilawati Kotabaru</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .bg-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-pattern text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="bg-teal-600 p-1.5 sm:p-2 rounded-lg shadow-lg shadow-teal-200">
+                        <i data-lucide="book-open" class="text-white w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    <span class="font-bold text-base sm:text-xl tracking-tight text-slate-900">KPA Tilawati <span class="text-teal-600">Kotabaru</span></span>
+                </div>
+                <a href="#" onclick="window.location.reload()" class="text-xs sm:text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
+                    Beranda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center px-3 py-8 sm:px-6 sm:py-12">
+        
+        <!-- Hero Section -->
+        <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <h1 class="text-3xl sm:text-5xl font-extrabold mb-3 sm:mb-4">
+                <span class="gradient-text">Form Digital Supervisi</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+                Platform evaluasi pembelajaran Al-Qur'an Metode Tilawati yang terintegrasi, efisien, dan mudah digunakan.
+            </p>
+        </div>
+
+        <!-- Grid Menu (5 Items) -->
+        <!-- Grid 1 kolom di HP, 2 kolom di Tablet, 3 kolom di Desktop -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-6xl">
+            
+            <!-- Card 1: PAUD -->
+            <a href="supervisipaud.html" class="group block">
+                <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-md card-hover transition-all duration-300 h-full flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-amber-400"></div>
+                    <div class="bg-orange-50 p-2.5 sm:p-4 rounded-full mb-2 sm:mb-4 group-hover:bg-orange-400 transition-colors duration-300">
+                        <i data-lucide="baby" class="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Supervisi PAUD</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4 line-clamp-2">Evaluasi khusus metode kartu & kalender tingkat PAUD.</p>
+                    <span class="mt-auto inline-flex items-center text-xs sm:text-sm font-semibold text-orange-500 group-hover:translate-x-1 transition-transform">
+                        Buka Form <i data-lucide="arrow-right" class="w-3 h-3 sm:w-4 sm:h-4 ml-1"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 2: JILID -->
+            <a href="supervisijilid.html" class="group block">
+                <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-md card-hover transition-all duration-300 h-full flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 to-emerald-400"></div>
+                    <div class="bg-teal-50 p-2.5 sm:p-4 rounded-full mb-2 sm:mb-4 group-hover:bg-teal-500 transition-colors duration-300">
+                        <i data-lucide="layers" class="w-6 h-6 sm:w-8 sm:h-8 text-teal-600 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Supervisi Jilid</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4 line-clamp-2">Form penilaian standar untuk tingkat dasar/jilid (Peraga & Buku).</p>
+                    <span class="mt-auto inline-flex items-center text-xs sm:text-sm font-semibold text-teal-600 group-hover:translate-x-1 transition-transform">
+                        Buka Form <i data-lucide="arrow-right" class="w-3 h-3 sm:w-4 sm:h-4 ml-1"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 3: REMAJA -->
+            <a href="supervisiremaja.html" class="group block">
+                <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-md card-hover transition-all duration-300 h-full flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                    <div class="bg-blue-50 p-2.5 sm:p-4 rounded-full mb-2 sm:mb-4 group-hover:bg-blue-500 transition-colors duration-300">
+                        <i data-lucide="users" class="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Supervisi Remaja</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4 line-clamp-2">Evaluasi kinerja pendamping dan kualitas bacaan remaja.</p>
+                    <span class="mt-auto inline-flex items-center text-xs sm:text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
+                        Buka Form <i data-lucide="arrow-right" class="w-3 h-3 sm:w-4 sm:h-4 ml-1"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 4: TILAWATI AL QURAN -->
+            <a href="supervisiquran.html" class="group block">
+                <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-md card-hover transition-all duration-300 h-full flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-400"></div>
+                    <div class="bg-emerald-50 p-2.5 sm:p-4 rounded-full mb-2 sm:mb-4 group-hover:bg-emerald-500 transition-colors duration-300">
+                        <i data-lucide="book-open-text" class="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Supervisi Al Quran</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4 line-clamp-2">Monitoring pembelajaran umum metode Tilawati.</p>
+                    <span class="mt-auto inline-flex items-center text-xs sm:text-sm font-semibold text-emerald-600 group-hover:translate-x-1 transition-transform">
+                        Buka Form <i data-lucide="arrow-right" class="w-3 h-3 sm:w-4 sm:h-4 ml-1"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 5: GURU AL QURAN -->
+            <a href="supervisipengajar.html" class="group block">
+                <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-md card-hover transition-all duration-300 h-full flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-500"></div>
+                    <div class="bg-violet-50 p-2.5 sm:p-4 rounded-full mb-2 sm:mb-4 group-hover:bg-violet-500 transition-colors duration-300">
+                        <i data-lucide="user-check" class="w-6 h-6 sm:w-8 sm:h-8 text-violet-600 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Supervisi Guru</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4 line-clamp-2">Penilaian khusus performa dan kompetensi guru.</p>
+                    <span class="mt-auto inline-flex items-center text-xs sm:text-sm font-semibold text-violet-600 group-hover:translate-x-1 transition-transform">
+                        Buka Form <i data-lucide="arrow-right" class="w-3 h-3 sm:w-4 sm:h-4 ml-1"></i>
+                    </span>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-8 sm:mt-12 bg-white rounded-lg sm:rounded-xl p-3 sm:p-6 border border-slate-200 max-w-2xl w-full shadow-sm">
+            <div class="flex items-start gap-3 sm:gap-4">
+                <div class="bg-blue-50 p-1.5 sm:p-2 rounded-lg shrink-0">
+                    <i data-lucide="info" class="text-blue-600 w-4 h-4 sm:w-5 sm:h-5"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-800 text-sm sm:text-base mb-1">Panduan Penggunaan</h4>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        Pilih kategori formulir di atas untuk memulai penilaian. Data akan tersimpan otomatis di browser Anda.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 sm:py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-xs sm:text-sm">
+                &copy; <script>document.write(new Date().getFullYear())</script> KPA Tilawati Kotabaru. Hak Cipta Dilindungi.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Inisialisasi Icons
+        lucide.createIcons();
+
+        // Animasi halaman saat dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const main = document.querySelector('main');
+            main.style.opacity = '0';
+            main.style.transform = 'translateY(20px)';
+            main.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            
+            setTimeout(() => {
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
