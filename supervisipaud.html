@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penilaian Supervisi Tilawati</title>
+    <title>Penilaian Supervisi Tilawati PAUD</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <!-- Lucide Icons -->
@@ -76,7 +76,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            /* Transisi lebih halus untuk perubahan warna */
             background-color: #fff;
             color: #000;
         }
@@ -290,7 +289,7 @@
             box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Color Variants (Sama dengan di Modal) */
+        /* Color Variants */
         .btn-0 {
             background: #e5e7eb;
             color: #6b7280;
@@ -349,16 +348,12 @@
             font-weight: bold;
         }
     </style>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-    </style>
 </head>
 
 <body class="h-full bg-gray-50">
     <div class="app-wrapper w-full" id="appWrapper" style="background:#f8fffe;">
-        <div class="max-w-4xl mx-auto px-4 py-6 sm:px-6"><!-- Header -->
+        <div class="max-w-4xl mx-auto px-4 py-6 sm:px-6">
+            <!-- Header -->
             <div class="text-center mb-6 fade-in print-break">
                 <div
                     class="inline-flex items-center gap-2 bg-teal-700 text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase mb-3">
@@ -366,8 +361,10 @@
                 </div>
                 <h1 id="formTitle" class="text-xl sm:text-2xl font-extrabold text-teal-800 leading-tight">PENILAIAN
                     SUPERVISI PEMBELAJARAN AL QUR'AN</h1>
-                <p class="text-teal-600 font-semibold text-sm mt-1 mb-2">METODE TILAWATI — TINGKAT DASAR</p>
-            </div><!-- Info Section -->
+                <p class="text-teal-600 font-semibold text-sm mt-1 mb-2">METODE TILAWATI — TINGKAT TILAWATI PAUD</p>
+            </div>
+
+            <!-- Info Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break"
                 style="animation-delay:0.1s;">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
@@ -418,8 +415,12 @@
                             oninput="saveToStorage();">
                     </div>
                 </div>
-            </div><!-- Assessment Form -->
-            <div id="assessmentForm" class="space-y-4 mb-5"></div><!-- Catatan Umum -->
+            </div>
+
+            <!-- Assessment Form -->
+            <div id="assessmentForm" class="space-y-4 mb-5"></div>
+
+            <!-- Catatan Umum -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
                 <div class="section-header mb-3 flex items-center gap-2">
                     <i data-lucide="clipboard" style="width:16px;height:16px;"></i> CATATAN UMUM
@@ -431,9 +432,9 @@
                             placeholder="..." oninput="saveToStorage();">
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">2. Jilid / Halaman</span><input
-                            type="text" class="info-input" id="noteJilid" style="max-width:200px;"
-                            placeholder="Jilid ... hal ..." oninput="saveToStorage();">
+                        <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">2. Hal Buku antara ... s/d
+                            ...</span><input type="text" class="info-input" id="noteJilid" style="max-width:200px;"
+                            placeholder="Antara ... s/d ..." oninput="saveToStorage();">
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-semibold text-gray-500 shrink-0 w-48">3. Jumlah santri</span><input
@@ -450,7 +451,9 @@
                         <span class="text-sm font-semibold text-teal-700">diminta Supervisor</span>
                     </div>
                 </div>
-            </div><!-- Result -->
+            </div>
+
+            <!-- Result -->
             <div id="resultSection" class="mb-5 fade-in print-break">
                 <div class="result-card">
                     <div class="grid grid-cols-3 gap-2 items-center text-center">
@@ -458,7 +461,7 @@
                             <p class="text-teal-100 text-xs font-semibold uppercase tracking-tight mb-0.5">Total Skor
                             </p>
                             <p class="text-2xl font-extrabold" id="totalScoreDisplay">0</p>
-                            <p class="text-teal-200 text-xs mt-0.5">/ 195</p>
+                            <p class="text-teal-200 text-xs mt-0.5">/ 215</p>
                         </div>
                         <div class="border-l border-r border-white/30 px-2">
                             <p class="text-teal-100 text-xs font-semibold uppercase tracking-tight mb-0.5">Nilai Akhir
@@ -482,7 +485,9 @@
                         </div>
                     </div>
                 </div>
-            </div><!-- Skala Nilai Reference -->
+            </div>
+
+            <!-- Skala Nilai Reference -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
                 <p class="font-bold text-sm text-gray-700 mb-3">Skala Nilai</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -502,7 +507,9 @@
                         <strong class="text-base">5</strong><span>95–100 • Sangat mampu</span>
                     </div>
                 </div>
-            </div><!-- Hasil Observasi -->
+            </div>
+
+            <!-- Hasil Observasi -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-5 fade-in print-break">
                 <div class="section-header mb-3 flex items-center gap-2">
                     <i data-lucide="user-check" style="width:16px;height:16px;"></i> HASIL OBSERVASI
@@ -549,13 +556,18 @@
                             oninput="saveToStorage();">
                     </div>
                 </div>
-            </div><!-- Actions -->
-            <div class="flex flex-wrap gap-3 justify-center mb-8 no-print"><button onclick="resetForm()"
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-3 justify-center mb-8 no-print">
+                <button onclick="resetForm()"
                     class="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-100 transition">
-                    <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Reset </button> <button
-                    onclick="exportPDF()"
+                    <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Reset
+                </button>
+                <button onclick="exportPDF()"
                     class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 text-white font-semibold text-sm hover:bg-teal-800 transition shadow-lg shadow-teal-200">
-                    <i data-lucide="printer" style="width:16px;height:16px;"></i> Cetak / Print </button>
+                    <i data-lucide="printer" style="width:16px;height:16px;"></i> Cetak / Print
+                </button>
             </div>
         </div>
     </div>
@@ -633,18 +645,18 @@
     </div>
 
     <script>
-        const MAX_SCORE = 195;
+        const MAX_SCORE = 215; // DIUBAH KE 215 SESUAI REQUEST
         const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
         // --- Helper: Warna Berdasarkan Nilai ---
         function applyScoreStyle(input, val) {
             const colors = {
-                0: { bg: '#ffffff', text: '#000000', border: '#d1d5db' }, // Putih (Default)
-                1: { bg: '#ef4444', text: '#ffffff', border: '#ef4444' }, // Merah
-                2: { bg: '#f97316', text: '#ffffff', border: '#f97316' }, // Oranye
-                3: { bg: '#eab308', text: '#000000', border: '#eab308' }, // Kuning
-                4: { bg: '#22c55e', text: '#ffffff', border: '#22c55e' }, // Hijau
-                5: { bg: '#0d9488', text: '#ffffff', border: '#0d9488' }  // Teal
+                0: { bg: '#ffffff', text: '#000000', border: '#d1d5db' },
+                1: { bg: '#ef4444', text: '#ffffff', border: '#ef4444' },
+                2: { bg: '#f97316', text: '#ffffff', border: '#f97316' },
+                3: { bg: '#eab308', text: '#000000', border: '#eab308' },
+                4: { bg: '#22c55e', text: '#ffffff', border: '#22c55e' },
+                5: { bg: '#0d9488', text: '#ffffff', border: '#0d9488' }
             };
             const theme = colors[val] || colors[0];
             input.style.backgroundColor = theme.bg;
@@ -653,7 +665,6 @@
         }
 
         // --- LocalStorage Functions ---
-
         function saveToStorage() {
             const data = {
                 info: {
@@ -679,11 +690,11 @@
                     signName: document.getElementById('signName').value
                 }
             };
-            localStorage.setItem('tilawati_supervisi_data', JSON.stringify(data));
+            localStorage.setItem('tilawati_paud_supervisi_data', JSON.stringify(data));
         }
 
         function loadFromStorage() {
-            const saved = localStorage.getItem('tilawati_supervisi_data');
+            const saved = localStorage.getItem('tilawati_paud_supervisi_data');
             if (!saved) return;
 
             try {
@@ -717,7 +728,6 @@
                             } else {
                                 input.value = '';
                             }
-                            // Terapkan warna saat load storage
                             applyScoreStyle(input, val);
                         }
                     });
@@ -748,7 +758,6 @@
         }
 
         // --- Modal Logic ---
-
         let activeScoreInput = null;
 
         function openScoreModal(el) {
@@ -772,10 +781,7 @@
                 } else {
                     activeScoreInput.value = val;
                 }
-
-                // Terapkan Warna
                 applyScoreStyle(activeScoreInput, val);
-
                 updateScore(activeScoreInput);
                 closeScoreModal();
             }
@@ -799,13 +805,11 @@
             }
         }
 
-        // Validation Modal Functions
         function closeValidationModal() {
             document.getElementById('validationModal').style.display = 'none';
         }
 
         // --- General Logic ---
-
         function updateHari() {
             const dateInput = document.getElementById('infoTanggal').value;
             if (!dateInput) return;
@@ -877,6 +881,7 @@
         }
 
         function updateSignPlace() {
+            // DIUBAH KE Kotabaru
             const dateInput = document.getElementById('infoTanggal').value;
             if (!dateInput) return;
             const date = new Date(dateInput + 'T00:00:00');
@@ -888,34 +893,40 @@
             document.getElementById('signPlace').textContent = `Kotabaru, ${day} ${monthName} ${year}`;
         }
 
+        // --- DATA STRUCTURE BARU SESUAI REQUEST ---
         const SECTIONS = [
             {
                 id: 1, title: "PERSIAPAN TERTULIS",
                 items: ["Form Program pembelajaran", "Kebenaran pengisian program"]
             },
             {
-                id: 2, title: "PERSIAPAN KELAS & DO'A",
-                items: ["Masuk tepat waktu", "Duduk santri berbentuk U", "Guru memimpin do'a", "Santri sudah siap diajak berdo'a", "Santri konsentrasi dalam berdo'a", "Rasio guru dengan santri ideal (maks. 15 santri)"]
+                id: 2, title: "PERSIAPAN KELAS & DO`A",
+                items: ["Masuk tepat waktu", "Duduk santri berbentuk U/O", "Guru memimpin do`a", "Santri sudah siap diajak berdo`a", "Santri konsentrasi dalam berdo`a", "Rasio guru dengan santri ideal (mak.15 santri)"]
             },
             {
-                id: "3", title: "PENGAJARAN & PENGELOLAAN KELAS",
+                id: 3, title: "PENGAJARAN & PENGELOLAN KELAS",
                 subs: [
                     {
-                        id: "3.1", title: "Peraga",
-                        items: ["Guru menjelaskan pokok bahasan secara sederhana", "Guru membaca klasikal sesuai tekniknya", "Guru ikut baca saat klasikal T. 2 atau 3", "Guru selalu mengawasi santri", "Guru tepat dalam menunjuk peraga", "Saat baca peraga santri tidak pegang buku", "Peraga tidak digunakan baca simak"]
+                        id: "3.1", title: "Peraga KARTU",
+                        items: ["Guru menjelaskan pokok bahasan sec.sederhana", "Dilaksanakan sesuai tekniknya", "Guru selalu mengawasi santri", "Saat sesi peraga Kartu santri tidak pegang buku", "Peraga tidak digunakan baca simak"]
                     },
                     {
-                        id: "3.2", title: "Buku",
-                        items: ["Guru menjelaskan pokok bahasan", "Guru membaca klasikal T. 2", "Guru ikut baca saat klasikal T. 2", "Guru selalu mengawasi santri", "Santri bergiliran baca dan kebenaran putaran", "Kondisi santri tetap terkendali (tertib)", "Guru dan santri membaca T. 3"]
+                        id: "3.2", title: "Peraga Kalender",
+                        items: ["Guru menjelaskan pokok bahasan sec.sederhana", "Guru membaca klasikal sesuai tekniknya", "Guru ikut baca saat klasikal T. 2", "Guru selalu mengawasi santri", "Guru tepat dalam menunjuk peraga", "Saat baca peraga santri tidak pegang buku", "Peraga Kalender tidak digunakan baca simak"]
+                    },
+                    {
+                        id: "3.3", title: "Buku",
+                        // Note: 'c' skipped in prompt, followed strictly.
+                        items: ["Guru menjelaskan pokok bahasan", "Dilaksanakan sesuai tekniknya", "Guru selalu mengawasi santri", "Santri bergiliran baca dan kebenaran putaran", "Kondisi santri tetap terkendali (tertib)"]
                     }
                 ]
             },
             {
                 id: 4, title: "SARANA BELAJAR",
-                items: ["Meja belajar", "Peraga beserta penunjuk dan tiangnya", "Buku pegangan santri"]
+                items: ["Meja belajar", "Peraga KARTU", "Peraga Kalender beserta penunjuk dan tiangnya", "Buku pegangan santri"]
             },
             {
-                id: 5, title: "PENAMPILAN GURU (PERFORMANCE)",
+                id: 5, title: "PENAMPILAN GURU ( PERFORMANCE )",
                 items: ["Guru berwibawa dihadapan santri", "Bersemangat saat mengajar", "Percaya diri saat mengajar", "Pengendalian diri saat mengajar", "Pengaturan siswa", "Penggunaan sumber belajar", "Wawasan keilmuan", "Penguasaan terhadap materi ajar", "Gaya penyajian materi", "Intonasi suara (kualitas suara)", "Kedisiplinan dalam mengajar", "Pemberian reward kepada siswa", "Pemberian motivasi siswa", "Kerapian pakaian"]
             }
         ];
@@ -955,8 +966,8 @@
                     sec.subs.forEach(sub => {
                         html += `<div class="sub-header">${sub.id}. ${sub.title}</div>`;
                         sub.items.forEach((item, i) => {
-                            const key = `s${sub.id}_${i}`;
-                            const noteKey = `note_s${sub.id}_${i}`;
+                            const key = `s${sub.id.replace('.','_')}_${i}`; // e.g., s3_1_0
+                            const noteKey = `note_s${sub.id.replace('.','_')}_${i}`;
                             scores[key] = 0;
                             html += `<div class="item-row flex items-center gap-2 pb-1">
             <span class="text-xs text-gray-500 w-5 shrink-0">${letters[i]}.</span>
@@ -967,9 +978,9 @@
             <input type="text" placeholder="Catatan..." class="w-full text-xs text-gray-500 bg-transparent border-b border-gray-100 focus:border-teal-500 focus:outline-none py-1" data-note="${noteKey}" onchange="noteValues[this.dataset.note]=this.value; saveToStorage();">
           </div>`;
                         });
-                        html += `<div class="sum-row flex items-center justify-between"><span>Jumlah skor ${sub.id}</span><span id="sum_${sub.id.replace('.', '_')}">0</span></div>`;
+                        html += `<div class="sum-row flex items-center justify-between"><span>Jumlah skor ${sub.id}</span><span id="sum_${sub.id.replace('.','_')}">0</span></div>`;
                     });
-                    html += `<div class="sum-row flex items-center justify-between" style="background:linear-gradient(90deg,#ccfbf1,#99f6e4);"><span>Jumlah skor 3 (3.1 + 3.2)</span><span id="sum_3">0</span></div>`;
+                    html += `<div class="sum-row flex items-center justify-between" style="background:linear-gradient(90deg,#ccfbf1,#99f6e4);"><span>Jumlah skor 3 (3.1 + 3.2 + 3.3)</span><span id="sum_3">0</span></div>`;
                 }
 
                 card.innerHTML = html;
@@ -1000,9 +1011,10 @@
 
             const s1 = sumByPrefix('s1_'); setSum('sum_1', s1);
             const s2 = sumByPrefix('s2_'); setSum('sum_2', s2);
-            const s31 = sumByPrefix('s3.1_'); setSum('sum_3_1', s31);
-            const s32 = sumByPrefix('s3.2_'); setSum('sum_3_2', s32);
-            const s3 = s31 + s32; setSum('sum_3', s3);
+            const s31 = sumByPrefix('s3_1_'); setSum('sum_3_1', s31);
+            const s32 = sumByPrefix('s3_2_'); setSum('sum_3_2', s32);
+            const s33 = sumByPrefix('s3_3_'); setSum('sum_3_3', s33);
+            const s3 = s31 + s32 + s33; setSum('sum_3', s3);
             const s4 = sumByPrefix('s4_'); setSum('sum_4', s4);
             const s5 = sumByPrefix('s5_'); setSum('sum_5', s5);
 
@@ -1067,7 +1079,6 @@
 
             document.querySelectorAll('.score-input').forEach(el => {
                 el.value = '';
-                // Reset Warna ke Default
                 applyScoreStyle(el, 0);
             });
 
@@ -1075,7 +1086,7 @@
             document.querySelectorAll('.notes-input').forEach(el => el.value = '');
 
             initializeDateToday();
-            localStorage.removeItem('tilawati_supervisi_data');
+            localStorage.removeItem('tilawati_paud_supervisi_data');
 
             recalculate();
             showToast('Form & Data Tersimpan Dihapus');
@@ -1092,12 +1103,10 @@
         }
 
         // --- Validation Logic ---
-
         function validateForm() {
             const errors = [];
             const letters = 'abcdefghijklmnopqrstuvwxyz';
 
-            // 1. Validasi Info Dasar (Kecuali Catatan)
             const guru = document.getElementById('infoGuru').value.trim();
             const kelompok = document.getElementById('infoKelompok').value.trim();
             const jamKe = document.getElementById('infoJamKe').value.trim();
@@ -1106,25 +1115,25 @@
             if (!kelompok) errors.push("Kelompok belum diisi");
             if (!jamKe) errors.push("Jam ke belum dipilih");
 
-            // 2. Validasi Skor (Semua item harus diisi > 0)
-            SECTIONS.forEach(sec => {
-                const checkItems = (items, prefix, title) => {
-                    items.forEach((itemText, i) => {
-                        const key = `s${prefix}_${i}`;
-                        const val = scores[key] || 0;
-                        if (val === 0) {
-                            const letter = letters[i] || '';
-                            errors.push(`<b>${title}</b>: ${letter}. ${itemText}`);
-                        }
-                    });
-                };
+            const checkItems = (items, prefix, title) => {
+                items.forEach((itemText, i) => {
+                    const key = `s${prefix}_${i}`;
+                    const val = scores[key] || 0;
+                    if (val === 0) {
+                        const letter = letters[i] || '';
+                        errors.push(`<b>${title}</b>: ${letter}. ${itemText}`);
+                    }
+                });
+            };
 
+            SECTIONS.forEach(sec => {
                 if (sec.items) {
                     checkItems(sec.items, sec.id, sec.title);
                 }
                 if (sec.subs) {
                     sec.subs.forEach(sub => {
-                        checkItems(sub.items, sub.id, sub.title);
+                        // Convert '3.1' to '3_1' for key matching
+                        checkItems(sub.items, sub.id.replace('.', '_'), sub.title);
                     });
                 }
             });
@@ -1132,33 +1141,19 @@
             return errors;
         }
 
-        // --- PDF Generation (Murni jsPDF) ---
-
+        // --- PDF Generation (UPDATED STRUCTURE) ---
         async function exportPDF() {
-            // 1. Panggil Validasi
             const validationErrors = validateForm();
-
-            // 2. Jika ada error, tampilkan modal dan hentikan proses cetak
             if (validationErrors.length > 0) {
                 const modal = document.getElementById('validationModal');
                 const listContainer = document.getElementById('validationErrorList');
-
-                listContainer.innerHTML = validationErrors
-                    .map(err => `<div class="error-item">${err}</div>`)
-                    .join('');
-
+                listContainer.innerHTML = validationErrors.map(err => `<div class="error-item">${err}</div>`).join('');
                 modal.style.display = 'flex';
-                return; // Hentikan eksekusi di sini
+                return;
             }
 
-            // 3. Jika lolos validasi, lanjut cetak PDF
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: 'a4'
-            });
-
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const marginX = 15;
             let currentY = 15;
 
@@ -1182,7 +1177,6 @@
             const hariVal = document.getElementById('infoHari').textContent || '-';
             const tglVal = document.getElementById('infoTanggal').value;
             const hariTanggal = `${hariVal}, ${formatDateIndo(tglVal)}`;
-
             const pukulVal = document.getElementById('infoPukulDisplay').value || '--:--';
             const jamKeVal = document.getElementById('infoJamKe').value || '--';
             const jamKe = `${pukulVal} (Jam ke-${jamKeVal})`;
@@ -1190,10 +1184,10 @@
             // --- PAGE 1: HEADER ---
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
-            doc.setTextColor(15, 118, 110); // Match index.html teal theme
+            doc.setTextColor(15, 118, 110);
             doc.text("PENILAIAN SUPERVISI PEMBELAJARAN AL QURAN METODE TILAWATI", 105, currentY, { align: "center" });
             currentY += 5;
-            doc.text("TINGKAT DASAR (TILAWATI)", 105, currentY, { align: "center" });
+            doc.text("TINGKAT TILAWATI PAUD", 105, currentY, { align: "center" });
             currentY += 5;
             doc.text("LEMBAGA PENDIDIKAN : " + lembaga.toUpperCase(), 105, currentY, { align: "center" });
 
@@ -1202,12 +1196,10 @@
             doc.setFontSize(10);
             doc.setTextColor(50, 50, 50);
 
-            // LEFT HEADER INFO
             doc.text("Jenjang", marginX, currentY); doc.text(": " + jenjang, marginX + 25, currentY);
             doc.text("Nama Guru", marginX, currentY + 6); doc.text(": " + guru, marginX + 25, currentY + 6);
             doc.text("Kelompok", marginX, currentY + 12); doc.text(": " + kelompok, marginX + 25, currentY + 12);
 
-            // RIGHT HEADER INFO
             doc.text("Hari, Tanggal", 115, currentY); doc.text(": " + hariTanggal, 145, currentY);
             doc.text("Pukul/Jam ke", 115, currentY + 6); doc.text(": " + jamKe, 145, currentY + 6);
 
@@ -1218,42 +1210,46 @@
             const gradeData = getGrade(parseFloat(finalVal));
 
             // --- TABLE DATA PAGE 1 ---
+            // Sec 1, 2, 3.1, 3.2, 4
             const tableData1 = [
                 [{ content: '1', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PERSIAPAN TERTULIS', styles: { fontStyle: 'bold' } }, '', ''],
                 ['', 'a. Form Program pembelajaran', String(scores['s1_0'] || 0), noteValues['note_s1_0'] || ''],
                 ['', 'b. Kebenaran pengisian program', String(scores['s1_1'] || 0), noteValues['note_s1_1'] || ''],
                 ['', { content: 'Jumlah skor 1', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s1_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                
                 [{ content: '2', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PERSIAPAN KELAS & DO`A', styles: { fontStyle: 'bold' } }, '', ''],
                 ['', 'a. Masuk tepat waktu', String(scores['s2_0'] || 0), noteValues['note_s2_0'] || ''],
-                ['', 'b. Duduk santri berbentuk U', String(scores['s2_1'] || 0), noteValues['note_s2_1'] || ''],
+                ['', 'b. Duduk santri berbentuk U/O', String(scores['s2_1'] || 0), noteValues['note_s2_1'] || ''],
                 ['', 'c. Guru memimpin do`a', String(scores['s2_2'] || 0), noteValues['note_s2_2'] || ''],
                 ['', 'd. Santri sudah siap diajak berdo`a', String(scores['s2_3'] || 0), noteValues['note_s2_3'] || ''],
                 ['', 'e. Santri konsentrasi dalam berdo`a', String(scores['s2_4'] || 0), noteValues['note_s2_4'] || ''],
                 ['', 'f. Rasio guru dengan santri ideal (mak.15 santri)', String(scores['s2_5'] || 0), noteValues['note_s2_5'] || ''],
                 ['', { content: 'Jumlah skor 2', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s2_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                
                 [{ content: '3', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PENGAJARAN & PENGELOLAN KELAS', styles: { fontStyle: 'bold' } }, '', ''],
-                ['', { content: '3.1. Peraga', styles: { fontStyle: 'bold' } }, '', ''],
-                ['', 'a. Guru menjelaskan pokok bahasan sec.sederhana', String(scores['s3.1_0'] || 0), noteValues['note_s3.1_0'] || ''],
-                ['', 'b. Guru membaca klasikal sesuai tekniknya', String(scores['s3.1_1'] || 0), noteValues['note_s3.1_1'] || ''],
-                ['', 'c. Guru ikut baca saat klasikal T. 2 atau 3', String(scores['s3.1_2'] || 0), noteValues['note_s3.1_2'] || ''],
-                ['', 'd. Guru selalu mengawasi santri', String(scores['s3.1_3'] || 0), noteValues['note_s3.1_3'] || ''],
-                ['', 'e. Guru tepat dalam menunjuk peraga', String(scores['s3.1_4'] || 0), noteValues['note_s3.1_4'] || ''],
-                ['', 'f. Saat baca peraga santri tidak pegang buku', String(scores['s3.1_5'] || 0), noteValues['note_s3.1_5'] || ''],
-                ['', 'g. Peraga tidak digunakan baca simak', String(scores['s3.1_6'] || 0), noteValues['note_s3.1_6'] || ''],
-                ['', { content: 'Jumlah skor 3.1', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3.1_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
-                ['', { content: '3.2. Buku', styles: { fontStyle: 'bold' } }, '', ''],
-                ['', 'a. Guru menjelaskan pokok bahasan', String(scores['s3.2_0'] || 0), noteValues['note_s3.2_0'] || ''],
-                ['', 'b. Guru membaca klasikal T. 2', String(scores['s3.2_1'] || 0), noteValues['note_s3.2_1'] || ''],
-                ['', 'c. Guru ikut baca saat klasikal T. 2', String(scores['s3.2_2'] || 0), noteValues['note_s3.2_2'] || ''],
-                ['', 'd. Guru selalu mengawasi santri', String(scores['s3.2_3'] || 0), noteValues['note_s3.2_3'] || ''],
-                ['', 'e. Santri bergiliran baca dan kebenaran putaran', String(scores['s3.2_4'] || 0), noteValues['note_s3.2_4'] || ''],
-                ['', 'f. Kondisi santri tetap terkendali (tertib)', String(scores['s3.2_5'] || 0), noteValues['note_s3.2_5'] || ''],
-                ['', 'g. Guru dan santri membaca T. 3', String(scores['s3.2_6'] || 0), noteValues['note_s3.2_6'] || ''],
-                ['', { content: 'Jumlah skor 3.2', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3.2_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                ['', { content: '3.1. Peraga KARTU', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru menjelaskan pokok bahasan sec.sederhana', String(scores['s3_1_0'] || 0), noteValues['note_s3_1_0'] || ''],
+                ['', 'b. Dilaksanakan sesuai tekniknya', String(scores['s3_1_1'] || 0), noteValues['note_s3_1_1'] || ''],
+                ['', 'c. Guru selalu mengawasi santri', String(scores['s3_1_2'] || 0), noteValues['note_s3_1_2'] || ''],
+                ['', 'd. Saat sesi peraga Kartu santri tidak pegang buku', String(scores['s3_1_3'] || 0), noteValues['note_s3_1_3'] || ''],
+                ['', 'e. Peraga tidak digunakan baca simak', String(scores['s3_1_4'] || 0), noteValues['note_s3_1_4'] || ''],
+                ['', { content: 'Jumlah skor 3.1', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3_1_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+
+                ['', { content: '3.2. Peraga Kalender', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru menjelaskan pokok bahasan sec.sederhana', String(scores['s3_2_0'] || 0), noteValues['note_s3_2_0'] || ''],
+                ['', 'b. Guru membaca klasikal sesuai tekniknya', String(scores['s3_2_1'] || 0), noteValues['note_s3_2_1'] || ''],
+                ['', 'c. Guru ikut baca saat klasikal T. 2', String(scores['s3_2_2'] || 0), noteValues['note_s3_2_2'] || ''],
+                ['', 'd. Guru selalu mengawasi santri', String(scores['s3_2_3'] || 0), noteValues['note_s3_2_3'] || ''],
+                ['', 'e. Guru tepat dalam menunjuk peraga', String(scores['s3_2_4'] || 0), noteValues['note_s3_2_4'] || ''],
+                ['', 'f. Saat baca peraga santri tidak pegang buku', String(scores['s3_2_5'] || 0), noteValues['note_s3_2_5'] || ''],
+                ['', 'g. Peraga Kalender tidak digunakan baca simak', String(scores['s3_2_6'] || 0), noteValues['note_s3_2_6'] || ''],
+                ['', { content: 'Jumlah skor 3.2', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3_2_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+
                 [{ content: '4', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'SARANA BELAJAR', styles: { fontStyle: 'bold' } }, '', ''],
                 ['', 'a. Meja belajar', String(scores['s4_0'] || 0), noteValues['note_s4_0'] || ''],
-                ['', 'b. Peraga beserta penunjuk dan tiangnya', String(scores['s4_1'] || 0), noteValues['note_s4_1'] || ''],
-                ['', 'c. Buku pegangan santri', String(scores['s4_2'] || 0), noteValues['note_s4_2'] || ''],
+                ['', 'b. Peraga KARTU', String(scores['s4_1'] || 0), noteValues['note_s4_1'] || ''],
+                ['', 'c. Peraga Kalender beserta penunjuk dan tiangnya', String(scores['s4_2'] || 0), noteValues['note_s4_2'] || ''],
+                ['', 'd. Buku pegangan santri', String(scores['s4_3'] || 0), noteValues['note_s4_3'] || ''],
                 ['', { content: 'Jumlah skor 4', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s4_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
             ];
 
@@ -1263,7 +1259,7 @@
                 body: tableData1,
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 0.8, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
-                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
                 columnStyles: {
                     0: { cellWidth: 10 },
                     1: { cellWidth: 80 },
@@ -1275,10 +1271,10 @@
                         const rowData = data.row.raw;
                         const firstCell = rowData[0];
                         const secondCell = rowData[1];
-                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1', '2', '3', '4', '5'].includes(firstCell.content))
-                            || (firstCell && ['1', '2', '3', '4', '5'].includes(firstCell))
-                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga', '3.2. Buku'].includes(secondCell.content))
-                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga', '3.2. Buku'].includes(secondCell));
+                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1','2','3','4','5'].includes(firstCell.content))
+                            || (firstCell && ['1','2','3','4','5'].includes(firstCell))
+                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga KARTU', '3.2. Peraga Kalender', '3.3. Buku'].includes(secondCell.content))
+                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga KARTU', '3.2. Peraga Kalender', '3.3. Buku'].includes(secondCell));
                         const isTotalRow = (secondCell && typeof secondCell === 'object' && secondCell.content && (secondCell.content.startsWith('Jumlah skor') || secondCell.content.startsWith('Total skor')))
                             || (secondCell && typeof secondCell === 'string' && (secondCell.startsWith('Jumlah skor') || secondCell.startsWith('Total skor')));
                         if (isSectionTitle || isTotalRow) {
@@ -1294,6 +1290,16 @@
             currentY = 15;
 
             const tableData2 = [
+                // Sisa Section 3 dan Section 5
+                ['', { content: '3.3. Buku', styles: { fontStyle: 'bold' } }, '', ''],
+                ['', 'a. Guru menjelaskan pokok bahasan', String(scores['s3_3_0'] || 0), noteValues['note_s3_3_0'] || ''],
+                ['', 'b. Dilaksanakan sesuai tekniknya', String(scores['s3_3_1'] || 0), noteValues['note_s3_3_1'] || ''],
+                ['', 'd. Guru selalu mengawasi santri', String(scores['s3_3_2'] || 0), noteValues['note_s3_3_2'] || ''],
+                ['', 'e. Santri bergiliran baca dan kebenaran putaran', String(scores['s3_3_3'] || 0), noteValues['note_s3_3_3'] || ''],
+                ['', 'f. Kondisi santri tetap terkendali (tertib)', String(scores['s3_3_4'] || 0), noteValues['note_s3_3_4'] || ''],
+                ['', { content: 'Jumlah skor 3.3', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3_3_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+                ['', { content: 'Jumlah skor 3 (3.1+3.2+3.3)', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s3_1_')+sumByPrefix('s3_2_')+sumByPrefix('s3_3_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
+
                 [{ content: '5', styles: { halign: 'center', fontStyle: 'bold' } }, { content: 'PENAMPILAN GURU ( PERFORMANCE )', styles: { fontStyle: 'bold' } }, '', ''],
                 ['', 'a. Guru berwibawa dihadapan santri', String(scores['s5_0'] || 0), noteValues['note_s5_0'] || ''],
                 ['', 'b. Bersemangat saat mengajar', String(scores['s5_1'] || 0), noteValues['note_s5_1'] || ''],
@@ -1306,7 +1312,7 @@
                 ['', 'i. Gaya penyajian materi', String(scores['s5_8'] || 0), noteValues['note_s5_8'] || ''],
                 ['', 'j. Intonasi suara (kualitas suara)', String(scores['s5_9'] || 0), noteValues['note_s5_9'] || ''],
                 ['', 'k. Kedisiplinan dalam mengajar', String(scores['s5_10'] || 0), noteValues['note_s5_10'] || ''],
-                ['', 'l. Pemberian riward kepada siswa', String(scores['s5_11'] || 0), noteValues['note_s5_11'] || ''],
+                ['', 'l. Pemberian reward kepada siswa', String(scores['s5_11'] || 0), noteValues['note_s5_11'] || ''],
                 ['', 'm. Pemberian motivasi siswa', String(scores['s5_12'] || 0), noteValues['note_s5_12'] || ''],
                 ['', 'n. Kerapian pakaian', String(scores['s5_13'] || 0), noteValues['note_s5_13'] || ''],
                 ['', { content: 'Jumlah skor 5', styles: { halign: 'left', fontStyle: 'bold' } }, { content: String(sumByPrefix('s5_')), styles: { halign: 'center', fontStyle: 'bold' } }, ''],
@@ -1319,7 +1325,7 @@
                 body: tableData2,
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 0.8, lineColor: [0, 0, 0] },
-                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
                 columnStyles: {
                     0: { cellWidth: 10 },
                     1: { cellWidth: 80 },
@@ -1331,10 +1337,10 @@
                         const rowData = data.row.raw;
                         const firstCell = rowData[0];
                         const secondCell = rowData[1];
-                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1', '2', '3', '4', '5'].includes(firstCell.content))
-                            || (firstCell && ['1', '2', '3', '4', '5'].includes(firstCell))
-                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga', '3.2. Buku'].includes(secondCell.content))
-                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga', '3.2. Buku'].includes(secondCell));
+                        const isSectionTitle = (firstCell && typeof firstCell === 'object' && firstCell.content && ['1','2','3','4','5'].includes(firstCell.content))
+                            || (firstCell && ['1','2','3','4','5'].includes(firstCell))
+                            || (secondCell && typeof secondCell === 'object' && secondCell.content && ['3.1. Peraga KARTU', '3.2. Peraga Kalender', '3.3. Buku'].includes(secondCell.content))
+                            || (secondCell && typeof secondCell === 'string' && ['3.1. Peraga KARTU', '3.2. Peraga Kalender', '3.3. Buku'].includes(secondCell));
                         const isTotalRow = (secondCell && typeof secondCell === 'object' && secondCell.content && (secondCell.content.startsWith('Jumlah skor') || secondCell.content.startsWith('Total skor')))
                             || (secondCell && typeof secondCell === 'string' && (secondCell.startsWith('Jumlah skor') || secondCell.startsWith('Total skor')));
                         if (isSectionTitle || isTotalRow) {
@@ -1355,8 +1361,8 @@
 
             doc.setFont("helvetica", "normal");
             doc.setTextColor(50, 50, 50);
-            const alignX = marginX + 68;
-            const valueX = marginX + 71;
+            const alignX = marginX + 65;
+            const valueX = marginX + 68;
 
             const pert = document.getElementById('notePertemuan').value || '...........';
             const jil = document.getElementById('noteJilid').value || '.......';
@@ -1368,7 +1374,7 @@
             doc.text(":", alignX, currentY + 5);
             doc.text(pert, valueX, currentY + 5);
 
-            doc.text("2. Jilid / Halaman", marginX + 5, currentY + 10);
+            doc.text("2. Hal Buku antara ... s/d ...", marginX + 5, currentY + 10);
             doc.text(":", alignX, currentY + 10);
             doc.text(jil, valueX, currentY + 10);
 
@@ -1385,6 +1391,7 @@
             doc.text(addN, valueX, currentY + 25);
 
             // SIGNATURE
+            // DIUBAH KE Kotabaru
             const placeDate = document.getElementById('signPlace').textContent || 'Kotabaru, .........................';
             const signName = document.getElementById('signName').value || '( Nama Supervisor )';
 
@@ -1403,10 +1410,20 @@
             doc.setFont("helvetica", "normal");
             doc.setTextColor(50, 50, 50);
             doc.text("1   Setiap aspek yang diamati diberi skor 1-5", marginX, currentY + 5);
-            doc.text("2   Nilai pengamatan diperoleh dengan rumus: Nilai = (Total skor / 195) x 100", marginX, currentY + 10);
-            doc.text(`3   Total skor = ${totalScore}  Nilai = ${totalScore} x 100 / 195 = ${finalVal}`, marginX, currentY + 15);
+            doc.text("2   Nilai pengamatan diperoleh dengan rumus:", marginX, currentY + 10);
+            doc.text(`Nilai = Total skor x 100 / 215`, marginX + 10, currentY + 15); // DIUBAH KE 215
+            doc.text(`Pembagi 215 didapat dari Total skor maksimal X Jumlah poin penilaian = 5 x 43 = 215`, marginX, currentY + 20);
 
-            currentY += 23;
+            currentY += 25;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(15, 118, 110);
+            doc.text("3   Skor Hasil Observasi", marginX, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(50, 50, 50);
+            doc.text(`Total skor = ${totalScore}`, marginX + 10, currentY + 5);
+            doc.text(`Nilai = ${totalScore} x 100 / 215 = ${finalVal}`, marginX + 10, currentY + 10);
+
+            currentY += 18;
             doc.setFont("helvetica", "bold");
             doc.setTextColor(15, 118, 110);
             doc.text("4   Skala Nilai", marginX, currentY);
@@ -1441,7 +1458,7 @@
                 body: [[guru, finalVal, feedbackText]],
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 1.5, lineColor: [0, 0, 0] },
-                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' }, // Teal Header
+                headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
                 columnStyles: {
                     0: { cellWidth: 80, halign: 'center', valign: 'middle', fontStyle: 'bold' },
                     1: { cellWidth: 20, halign: 'center', valign: 'middle' },
@@ -1449,8 +1466,8 @@
                 }
             });
 
-            doc.save('Penilaian_Supervisi_Tilawati.pdf');
-            showToast('PDF berhasil dibuat (100% Presisi)');
+            doc.save('Penilaian_Supervisi_Tilawati_PAUD.pdf');
+            showToast('PDF berhasil dibuat');
         }
 
         function sumByPrefix(prefix) {
