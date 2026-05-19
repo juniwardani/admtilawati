@@ -413,9 +413,9 @@
                             oninput="syncObsName(); saveToStorage();">
                     </div>
                     <div class="flex items-center gap-2">
-                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Kelompok</label><input
-                            type="text" class="info-input" id="infoKelompok" placeholder="..."
-                            oninput="saveToStorage();">
+                        <label class="text-xs font-semibold text-gray-500 w-24 shrink-0">Tempat</label><input
+                            type="text" class="info-input" id="infoTempat" placeholder="..."
+                            oninput="updateSignPlace(); saveToStorage();">
                     </div>
                 </div>
             </div><!-- Assessment Form -->
@@ -662,8 +662,8 @@
                     guru: document.getElementById('infoGuru').value,
                     pukul: document.getElementById('infoPukulDisplay').value,
                     jamKe: document.getElementById('infoJamKe').value,
-                    kelompok: document.getElementById('infoKelompok').value,
-                    lembaga: document.getElementById('lembagaDisplay').value
+                    lembaga: document.getElementById('lembagaDisplay').value,
+                    tempat: document.getElementById('infoTempat').value
                 },
                 notes: {
                     pertemuan: document.getElementById('notePertemuan').value,
@@ -695,8 +695,8 @@
                     document.getElementById('infoGuru').value = data.info.guru || '';
                     document.getElementById('infoPukulDisplay').value = data.info.pukul || '';
                     document.getElementById('infoJamKe').value = data.info.jamKe || '';
-                    document.getElementById('infoKelompok').value = data.info.kelompok || '';
                     document.getElementById('lembagaDisplay').value = data.info.lembaga || '';
+                    document.getElementById('infoTempat').value = data.info.tempat || '';
                 }
 
                 if (data.notes) {
@@ -885,7 +885,8 @@
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const monthName = monthNames[date.getMonth()];
-            document.getElementById('signPlace').textContent = `Kotabaru, ${day} ${monthName} ${year}`;
+            const tempat = document.getElementById('infoTempat').value.trim() || '..........';
+            document.getElementById('signPlace').textContent = `${tempat}, ${day} ${monthName} ${year}`;
         }
 
         const SECTIONS = [
@@ -1099,12 +1100,12 @@
 
             // 1. Validasi Info Dasar (Kecuali Catatan)
             const guru = document.getElementById('infoGuru').value.trim();
-            const kelompok = document.getElementById('infoKelompok').value.trim();
             const jamKe = document.getElementById('infoJamKe').value.trim();
+            const tempat = document.getElementById('infoTempat').value.trim();
 
             if (!guru) errors.push("Nama Guru belum diisi");
-            if (!kelompok) errors.push("Kelompok belum diisi");
             if (!jamKe) errors.push("Jam ke belum dipilih");
+            if (!tempat) errors.push("Tempat belum diisi");
 
             // 2. Validasi Skor (Semua item harus diisi > 0)
             SECTIONS.forEach(sec => {
@@ -1165,7 +1166,6 @@
             const lembaga = document.getElementById('lembagaDisplay').value || '.................................................';
             const jenjang = document.getElementById('infoJenjang').value || '.........................';
             const guru = document.getElementById('infoGuru').value || '.........................';
-            const kelompok = document.getElementById('infoKelompok').value || '.........................';
 
             const formatDateIndo = (dateInput) => {
                 if (!dateInput) return '.........................';
@@ -1205,13 +1205,12 @@
             // LEFT HEADER INFO
             doc.text("Jenjang", marginX, currentY); doc.text(": " + jenjang, marginX + 25, currentY);
             doc.text("Nama Guru", marginX, currentY + 6); doc.text(": " + guru, marginX + 25, currentY + 6);
-            doc.text("Kelompok", marginX, currentY + 12); doc.text(": " + kelompok, marginX + 25, currentY + 12);
 
             // RIGHT HEADER INFO
             doc.text("Hari, Tanggal", 115, currentY); doc.text(": " + hariTanggal, 145, currentY);
             doc.text("Pukul/Jam ke", 115, currentY + 6); doc.text(": " + jamKe, 145, currentY + 6);
 
-            currentY += 18;
+            currentY += 12;
 
             const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
             const finalVal = ((totalScore / MAX_SCORE) * 100).toFixed(2);
