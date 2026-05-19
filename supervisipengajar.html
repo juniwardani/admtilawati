@@ -1154,7 +1154,7 @@
             }
 
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [210, 330] });
             const marginX = 15;
             let currentY = 15;
 
