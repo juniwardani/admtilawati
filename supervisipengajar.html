@@ -421,6 +421,11 @@
                                 type="text" class="info-input" id="infoTempat" placeholder="..."
                                 oninput="updateSignPlace(); saveToStorage();">
                         </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs font-semibold text-gray-500 w-28 shrink-0">Kelompok</label><input
+                                type="text" class="info-input" id="infoKelompok" placeholder="..."
+                                oninput="updateSignPlace(); saveToStorage();">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -681,7 +686,8 @@
                     guru: document.getElementById('infoGuru').value,
                     pukul: document.getElementById('infoPukulDisplay').value,
                     jamKe: document.getElementById('infoJamKe').value,
-                    lembaga: document.getElementById('lembagaDisplay').value,
+                    lembaga: document.getElementById('lembagaDisplay').value, // Added missing comma
+                    kelompok: document.getElementById('infoKelompok').value,
                     tempat: document.getElementById('infoTempat').value
                 },
                 notes: {
@@ -715,6 +721,7 @@
                     document.getElementById('infoPukulDisplay').value = data.info.pukul || '';
                     document.getElementById('infoJamKe').value = data.info.jamKe || '';
                     document.getElementById('lembagaDisplay').value = data.info.lembaga || '';
+                    document.getElementById('infoKelompok').value = data.info.kelompok || '';
                     document.getElementById('infoTempat').value = data.info.tempat || '';
                 }
 
@@ -1112,11 +1119,13 @@
             const guru = document.getElementById('infoGuru').value.trim();
             const jamKe = document.getElementById('infoJamKe').value.trim();
             const tempat = document.getElementById('infoTempat').value.trim();
+            const kelompok = document.getElementById('infoKelompok').value.trim();
 
             if (!guru) errors.push("Nama Guru belum diisi");
             if (!jamKe) errors.push("Jam ke belum dipilih");
             if (!tempat) errors.push("Tempat belum diisi");
-
+            if (!kelompok) errors.push("Kelompok belum diisi");
+            
             const checkItems = (items, prefix, title) => {
                 items.forEach((itemText, i) => {
                     const key = `s${prefix}_${i}`;
@@ -1161,6 +1170,7 @@
             const lembaga = document.getElementById('lembagaDisplay').value || '.................................................';
             const jenjang = document.getElementById('infoJenjang').value || '.........................';
             const guru = document.getElementById('infoGuru').value || '.........................';
+            const kelompok = document.getElementById('infoKelompok').value || '.........................';
 
             const formatDateIndo = (dateInput) => {
                 if (!dateInput) return '.........................';
@@ -1203,6 +1213,7 @@
             // Right Column (Vertical Stack)
             doc.text("Hari, Tanggal", 115, currentY); doc.text(": " + hariTanggal, 145, currentY);
             doc.text("Pukul/Jam ke", 115, currentY + 6); doc.text(": " + jamKe, 145, currentY + 6);
+            doc.text("Kelompok", 115, currentY + 12); doc.text(": " + kelompok, 145, currentY + 12);
 
             currentY += 14;
 
